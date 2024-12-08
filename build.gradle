@@ -11,16 +11,24 @@ repositories {
 
 dependencies {
     // JUnit for testing
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    //testImplementation platform('org.junit:junit-bom:5.10.0')
+    //testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
 
 
     // PostgreSQL driver for database connection
     implementation 'org.postgresql:postgresql:42.7.4'
 
 }
-
 test {
     useJUnitPlatform()
     testLogging.showStandardStreams=true
 }
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+

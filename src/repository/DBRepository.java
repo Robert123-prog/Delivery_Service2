@@ -8,24 +8,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class DBRepository<T extends HasID> {
+public class DBRepository<T extends HasID> implements IRepository<T> {
     private final Connection connection;
     private final String tableName;
+    private final String primaryKeyColumn;
     private final RowMapper<T> rowMapper;
     private final String primaryKeyColumn;
 
     public DBRepository(Connection connection, String tableName, RowMapper<T> rowMapper, String primaryKeyColumn) {
         this.connection = connection;
         this.tableName = tableName;
+        this.primaryKeyColumn = primaryKeyColumn;
         this.rowMapper = rowMapper;
         this.primaryKeyColumn = primaryKeyColumn;
     }
 
     public void create(T obj) {
         try {
-            String query = "INSERT INTO " + tableName + " (" + obj.getClass().getMethod("getColumns").invoke(null) + ") VALUES (" + obj.getClass().getMethod("getValues").invoke(obj) + ")";
-            try (Statement st = connection.createStatement()) {
-                st.executeUpdate(query);
+            String columns = (String) obj.getClass().getMethod("getColumns").invoke(null);
+            String values = (String) obj.getClass().getMethod("getValues").invoke(obj);
+            String query = "INSERT INTO " + tableName + " (" + columns + ") VALUES (" + values + ")";
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.executeUpdate();
             }
         } catch (SQLException | ReflectiveOperationException e) {
             e.printStackTrace();
@@ -48,9 +52,11 @@ public class DBRepository<T extends HasID> {
 
     public void update(T obj) {
         try {
-            String query = "UPDATE " + tableName + " SET " + obj.getClass().getMethod("getUpdateValues").invoke(obj) + " WHERE " + primaryKeyColumn + " = " + obj.getId();
-            try (Statement st = connection.createStatement()) {
-                st.executeUpdate(query);
+            String updateValues = (String) obj.getClass().getMethod("getUpdateValues").invoke(obj);
+            String query = "UPDATE " + tableName + " SET " + updateValues + " WHERE " + primaryKeyColumn + " = ?";
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setInt(1, obj.getId());
+                ps.executeUpdate();
             }
         } catch (SQLException | ReflectiveOperationException e) {
             e.printStackTrace();
@@ -58,20 +64,24 @@ public class DBRepository<T extends HasID> {
     }
 
     public void delete(Integer id) {
-        String query = "DELETE FROM " + tableName + " WHERE " + primaryKeyColumn + " = " + id;
-        try (Statement st = connection.createStatement()) {
-            st.executeUpdate(query);
+        String query = "DELETE FROM " + tableName + " WHERE " + primaryKeyColumn + " = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public T get(Integer id) {
-        String query = "SELECT * FROM " + tableName + " WHERE " + primaryKeyColumn + " = " + id;
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(query)) {
-            if (rs.next()) {
-                return rowMapper.mapRow(rs);
+
+        String query = "SELECT * FROM " + tableName + " WHERE " + primaryKeyColumn + " = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rowMapper.mapRow(rs);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

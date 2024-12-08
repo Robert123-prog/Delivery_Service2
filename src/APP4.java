@@ -1,10 +1,15 @@
 import controller.*;
 import model.*;
 import repository.*;
+import service.*;
 
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 /**
@@ -13,7 +18,7 @@ import java.util.Scanner;
  * aspects of the delivery system including users, sellers, customers, employees,
  * and delivery persons.
  */
-public class APP4{
+public class APP4 {
     private CustomerController customerController;
     private EmployeeController employeeController;
     private SellerController sellerController;
@@ -22,13 +27,16 @@ public class APP4{
 
     private Scanner scanner;
 
-    public APP4(CustomerController customerController, EmployeeController employeeController, SellerController sellerController, DeliveryPersonController deliveryPersonController, UserController userController){
+    public APP4(CustomerController customerController, EmployeeController employeeController, SellerController sellerController, DeliveryPersonController deliveryPersonController, UserController userController) {
         this.customerController = customerController;
         this.employeeController = employeeController;
         this.sellerController = sellerController;
         this.deliveryPersonController = deliveryPersonController;
         this.userController = userController;
+        this.scanner = new Scanner(System.in);
+        createUI();
     }
+
     /**
      * Creates and manages the main user interface loop.
      * Displays the main menu and handles user input for navigation between different menus.
@@ -70,6 +78,7 @@ public class APP4{
             }
         }
     }
+
     /**
      * Manages the user menu interface.
      * Provides functionality for viewing transportation types and managing user accounts.
@@ -123,6 +132,7 @@ public class APP4{
             }
         }
     }
+
     /**
      * Manages the seller menu interface.
      * Provides functionality for managing stores, deposits, and packages.
@@ -221,6 +231,7 @@ public class APP4{
             }
         }
     }
+
     /**
      * Manages the customer menu interface.
      * Provides functionality for customer management and order processing.
@@ -355,6 +366,7 @@ public class APP4{
             }
         }
     }
+
     /**
      * Manages the employee menu interface.
      * Provides functionality for employee management and delivery assignments.
@@ -437,6 +449,7 @@ public class APP4{
             }
         }
     }
+
     /**
      * Manages the delivery person menu interface.
      * Provides functionality for delivery person management and delivery assignments.
@@ -512,11 +525,276 @@ public class APP4{
             }
         }
     }
+
     /**
      * Creates and initializes an in-memory repository for Customer entities.
      *
      * @return Initialized IRepository instance for Customer entities
      */
+
+    /**
+     * Main entry point of the application.
+     * Initializes all necessary repositories, creates service and controller instances,
+     * and starts the application.
+     *
+     * @param args Command line arguments (not used)
+     */
+    public static void main(String[] args) {
+        try {
+            // Testarea conexiunii la baza de date
+            if (testDatabaseConnection()) {
+                System.out.println("Conexiunea la baza de date a fost realizată cu succes.");
+            } else {
+                System.out.println("Conexiunea la baza de date a eșuat.");
+                return;
+            }
+
+            // Selectarea serviciului
+            Object[] selectedServices = selectService();
+
+            // Crearea instanțelor de Controller folosind serviciul selectat
+            CustomerController customerController = new CustomerController((CustomerService) selectedServices[0]);
+            EmployeeController employeeController = new EmployeeController((EmployeeService) selectedServices[1]);
+            SellerController sellerController = new SellerController((SellerService) selectedServices[2]);
+            DeliveryPersonController deliveryPersonController = new DeliveryPersonController((DeliveryPersonService) selectedServices[3]);
+            UserController userController = new UserController((UserService) selectedServices[4]);
+
+            // Inițializarea aplicației
+            new APP4(customerController, employeeController, sellerController, deliveryPersonController, userController).createUI();
+        }catch (Exception e) {
+                e.printStackTrace();
+        }
+    }
+
+    public static boolean testDatabaseConnection() {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
+            return connection != null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static Object[] selectService() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+                System.out.println("Selectează tipul de serviciu:");
+                System.out.println("1. InMemoryService");
+                System.out.println("2. FileService");
+                System.out.println("3. DbService");
+                int choice = scanner.nextInt();
+
+                switch (choice) {
+                    case 1:
+                        return createInMemoryServices();
+                    case 2:
+                        return createFileServices();
+                    case 3:
+                        return createDbServices();
+                    default:
+                        System.out.println("Selecție invalidă.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Input invalid. Te rog să introduci un număr.");
+                scanner.next(); // Consumă input-ul invalid
+            }
+        }
+    }
+
+    public static Object[] createInMemoryServices() {
+        // Creează și returnează instanțele de InMemoryService
+        IRepository<Store> storeIRepository = createInMemoryStoreRepository();
+        IRepository<Packages> packagesIRepository = createInMemoryPackageRepository();
+        IRepository<Order> orderIRepository = createInMemoryOrderRepository();
+        IRepository<Customer> customerIRepository = createInMemoryCustomerRepository();
+        IRepository<Department> departmentIRepository = createInMemoryDepartmentRepository();
+        IRepository<Employee> employeeIRepository = createInMemoryEmployeeRepository();
+        IRepository<Delivery> deliveryIRepository = createInMemoryDeliveryRepository();
+        IRepository<Deposit> depositIRepository = createInMemoryDepositRepository();
+        IRepository<Delivery_Person> deliveryPersonIRepository = createInMemoryDeliveryPersonRepository();
+        IRepository<Personal_Vehicle> personalVehicleIRepository = createInMemoryPersonalVehicleRepository();
+
+        CustomerService customerService = new CustomerService(customerIRepository,orderIRepository,deliveryIRepository,packagesIRepository);
+        EmployeeService employeeService = new EmployeeService(employeeIRepository,deliveryIRepository,departmentIRepository);
+        SellerService sellerService = new SellerService(storeIRepository, depositIRepository, packagesIRepository,deliveryIRepository,customerIRepository,orderIRepository);
+        DeliveryPersonService deliveryPersonService = new DeliveryPersonService(deliveryIRepository,deliveryPersonIRepository, personalVehicleIRepository);
+        UserService userService = new UserService(customerIRepository, employeeIRepository, deliveryPersonIRepository,departmentIRepository);
+
+        return new Object[]{customerService, employeeService, sellerService, deliveryPersonService, userService};
+    }
+
+    public static Object[] createFileServices() {
+        // Creează și returnează instanțele de FileService
+        IRepository<Store> storeRepository = new InFileRepository<>(
+                "src/data/stores.txt",
+                Store::toCsv,
+                Store::fromCsv
+        );
+        IRepository<Packages> packagesRepository = new InFileRepository<>(
+                "src/data/packages.txt",
+                Packages::toCsv,
+                Packages::fromCsv
+        );
+        IRepository<Order> orderRepository = new InFileRepository<>(
+                "src/data/orders.txt",
+                Order::toCsv,
+                Order::fromCsv
+        );
+        IRepository<Customer> customerRepository = new InFileRepository<>(
+                "src/data/customers.txt",
+                Customer::toCsv,
+                Customer::fromCsv
+        );
+        IRepository<Department> departmentRepository = new InFileRepository<>(
+                "src/data/departments.txt",
+                Department::toCsv,
+                Department::fromCsv
+        );
+        IRepository<Employee> employeeRepository = new InFileRepository<>(
+                "src/data/employees.txt",
+                Employee::toCsv,
+                Employee::fromCsv
+        );
+        IRepository<Delivery> deliveryRepository = new InFileRepository<>(
+                "src/data/deliveries.txt",
+                Delivery::toCsv,
+                Delivery::fromCsv
+        );
+        IRepository<Deposit> depositRepository = new InFileRepository<>(
+                "src/data/deposits.txt",
+                Deposit::toCsv,
+                Deposit::fromCsv
+        );
+        IRepository<Delivery_Person> deliveryPersonRepository = new InFileRepository<>(
+                "src/data/delivery_persons.txt",
+                Delivery_Person::toCsv,
+                Delivery_Person::fromCsv
+        );
+        IRepository<Personal_Vehicle> personalVehicleRepository = new InFileRepository<>(
+                "src/data/personal_vehicles.txt",
+                Personal_Vehicle::toCsv,
+                Personal_Vehicle::fromCsv
+        );
+
+        CustomerService customerService = new CustomerService(customerRepository,orderRepository,deliveryRepository,packagesRepository);
+        EmployeeService employeeService = new EmployeeService(employeeRepository,deliveryRepository,departmentRepository);
+        SellerService sellerService = new SellerService(storeRepository, depositRepository, packagesRepository,deliveryRepository,customerRepository,orderRepository);
+        DeliveryPersonService deliveryPersonService = new DeliveryPersonService(deliveryRepository,deliveryPersonRepository, personalVehicleRepository);
+        UserService userService = new UserService(customerRepository, employeeRepository, deliveryPersonRepository,departmentRepository);
+
+        return new Object[]{customerService, employeeService, sellerService, deliveryPersonService, userService};
+    }
+
+    public static Object[] createDbServices() {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
+
+            // Creează și returnează instanțele de DbService
+            RowMapper<Department> departmentsRowMapper = rs -> new Department(
+                    rs.getInt("departmentid"),
+                    rs.getString("name"),
+                    rs.getString("task")
+            );
+            DBRepository<Department> departmentDBRepository = new DBRepository<>(connection, "departments", departmentsRowMapper, "departmentid");
+
+            RowMapper<Employee> employeeRowMapper = rs -> new Employee(
+                    rs.getInt("employeeID"),
+                    rs.getInt("departmentID"),
+                    rs.getString("name"),
+                    rs.getString("phone"),
+                    rs.getString("license")
+            );
+            DBRepository<Employee> employeeDBRepository = new DBRepository<>(connection, "employees", employeeRowMapper, "employeeID");
+
+            RowMapper<Customer> customerRowMapper = rs -> new Customer(
+                    rs.getInt("customerID"),
+                    rs.getString("name"),
+                    rs.getString("address"),
+                    rs.getString("phone"),
+                    rs.getString("email")
+            );
+            DBRepository<Customer> customerDBRepository = new DBRepository<>(connection, "customers", customerRowMapper, "customerID");
+
+            RowMapper<Store> storeRowMapper = rs -> new Store(
+                    rs.getInt("storeID"),
+                    rs.getString("name"),
+                    rs.getString("address"),
+                    rs.getString("contact")
+            );
+            DBRepository<Store> storeDBRepository = new DBRepository<>(connection, "stores", storeRowMapper, "storeID");
+
+            RowMapper<Delivery_Person> deliveryPersonRowMapper = rs -> new Delivery_Person(
+                    rs.getInt("deliveryPersonID"),
+                    rs.getString("phone"),
+                    rs.getString("name")
+            );
+            DBRepository<Delivery_Person> deliveryPersonDBRepository = new DBRepository<>(connection, "delivery_persons", deliveryPersonRowMapper, "deliveryPersonID");
+
+            RowMapper<Deposit> depositRowMapper = rs -> new Deposit(
+                    rs.getInt("depositID"),
+                    rs.getString("address"),
+                    rs.getString("status"),
+                    rs.getInt("storeID")
+
+            );
+            DBRepository<Deposit> depositDBRepository = new DBRepository<>(connection, "deposits", depositRowMapper, "depositID");
+
+            RowMapper<Order> orderRowMapper = rs -> new Order(
+                    rs.getInt("orderID"),
+                    rs.getInt("customerID"),
+                    rs.getDate("orderDate"),
+                    rs.getTimestamp("deliveryDateTime").toLocalDateTime()
+                    //rs.getDouble("totalCost"),
+                    //rs.getString("status"),
+                    //rs.getInt("deliveryID"),
+                    //rs.getString("location")
+            );
+            DBRepository<Order> orderDBRepository = new DBRepository<>(connection, "orders", orderRowMapper, "orderID");
+
+            RowMapper<Personal_Vehicle> personalVehicleRowMapper = rs -> new Personal_Vehicle(
+                    rs.getInt("personalVehicleID"),
+                    rs.getInt("extraFee"),
+                    rs.getInt("deliveryPersonID"),
+                    //rs.getInt("capacity"),
+                    Transportation_Type.valueOf(rs.getString("transportation_type"))
+            );
+            DBRepository<Personal_Vehicle> personalVehicleDBRepository = new DBRepository<>(connection, "personal_vehicles", personalVehicleRowMapper, "personalVehicleID");
+
+            RowMapper<Packages> packagesRowMapper = rs -> new Packages(
+                    rs.getInt("packageID"),
+                    rs.getDouble("weight"),
+                    rs.getString("dimensions"),
+                    rs.getDouble("cost")
+                    //rs.getInt("depositID")
+            );
+            DBRepository<Packages> packagesDBRepository = new DBRepository<>(connection, "packages", packagesRowMapper, "packageID");
+
+            RowMapper<Delivery> deliveryRowMapper = rs -> new Delivery(
+                    rs.getInt("deliveryID")
+                    //rs.getInt("deliveryPersonID"),
+                    //rs.getInt("employeeID"),
+                    //rs.getInt("transportationID"),
+                    //rs.getString("transportation_type")
+                    //rs.getString("location")
+            );
+            DBRepository<Delivery> deliveryDBRepository = new DBRepository<>(connection, "deliveries", deliveryRowMapper, "deliveryID");
+
+            CustomerService customerService = new CustomerService(customerDBRepository,orderDBRepository,deliveryDBRepository,packagesDBRepository);
+            EmployeeService employeeService = new EmployeeService(employeeDBRepository,deliveryDBRepository,departmentDBRepository);
+            SellerService sellerService = new SellerService(storeDBRepository,depositDBRepository, packagesDBRepository, deliveryDBRepository,customerDBRepository,orderDBRepository);
+            DeliveryPersonService deliveryPersonService = new DeliveryPersonService(deliveryDBRepository, deliveryPersonDBRepository, personalVehicleDBRepository);
+            UserService userService = new UserService(customerDBRepository, employeeDBRepository, deliveryPersonDBRepository,departmentDBRepository);
+
+            return new Object[]{customerService, employeeService, sellerService, deliveryPersonService, userService};
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Metodele pentru crearea repository-urilor in-memory
     private static IRepository<Customer> createInMemoryCustomerRepository() {
         IRepository<Customer> customerIRepository = new InMemoryRepo<>();
         customerIRepository.create(new Customer(1, "Dorel", "Cluj-Napoca", "0774596204", "dorel@gmail.com"));
@@ -531,14 +809,13 @@ public class APP4{
         employeeIRepository.create(new Employee(2, 1, "Stefan", "071998491", "full time"));
         employeeIRepository.create(new Employee(3, 2, "David", "077636274", "full time"));
         return employeeIRepository;
-
     }
 
     private static IRepository<Delivery> createInMemoryDeliveryRepository() {
         IRepository<Delivery> deliveryIRepository = new InMemoryRepo<>();
-        deliveryIRepository.create(new Delivery(1));//, Timestamp.valueOf(LocalDateTime.of(2024, 6, 6, 10, 0))));
-        deliveryIRepository.create(new Delivery(2));//, Timestamp.valueOf(LocalDateTime.of(2024, 7, 8, 15, 30))));
-        deliveryIRepository.create(new Delivery(3));//, Timestamp.valueOf(LocalDateTime.of(2024, 7, 9, 15, 30))));
+        deliveryIRepository.create(new Delivery(1));//, Timestamp.valueOf(LocalDateTime.of(2024, 6, 6, 10, 0)))); // Exemplu
+        deliveryIRepository.create(new Delivery(2));//, Timestamp.valueOf(LocalDateTime.of(2024, 7, 8, 15, 30)))); // Exemplu
+        deliveryIRepository.create(new Delivery(3));//, Timestamp.valueOf(LocalDateTime.of(2024, 7, 9, 15, 30)))); // Exemplu
         return deliveryIRepository;
     }
 
@@ -562,15 +839,13 @@ public class APP4{
         depositIRepository.create(new Deposit(2, "Str. Constanta", "Empty", 2));
         depositIRepository.create(new Deposit(3, "Str. Fabricii", "Not full", 3));
         return depositIRepository;
-
     }
 
-    //LocalDateTime
     private static IRepository<Order> createInMemoryOrderRepository() {
         IRepository<Order> orderIRepository = new InMemoryRepo<>();
-        orderIRepository.create(new Order(1, 1, Date.valueOf("2024-06-06"), LocalDateTime.of(2024, 6, 10, 12, 0)));//, 150.75, "Processing"));
-        orderIRepository.create(new Order(2, 2, Date.valueOf("2024-06-07"), LocalDateTime.of(2024, 6, 12, 14, 30)));//, 200.50, "Shipped"));
-        orderIRepository.create(new Order(3, 3, Date.valueOf("2024-06-08"), LocalDateTime.of(2024, 6, 15, 9, 0)));//, 100.25, "Delivered"));
+        orderIRepository.create(new Order(1, 1, Date.valueOf("2024-06-06"), LocalDateTime.of(2024, 6, 10, 12, 0))); // Exemplu
+        orderIRepository.create(new Order(2, 2, Date.valueOf("2024-06-07"), LocalDateTime.of(2024, 6, 12, 14, 30))); // Exemplu
+        orderIRepository.create(new Order(3, 3, Date.valueOf("2024-06-08"), LocalDateTime.of(2024, 6, 15, 9, 0))); // Exemplu
         return orderIRepository;
     }
 
@@ -596,80 +871,5 @@ public class APP4{
         storeIRepository.create(new Store(2, "Dedeman", "Str. Livezii", "Stefan"));
         storeIRepository.create(new Store(3, "Kaufland", "Calea Manastur", "Mihai"));
         return storeIRepository;
-    }
-
-    /**
-     * Main entry point of the application.
-     * Initializes all necessary repositories, creates service and controller instances,
-     * and starts the application.
-     *
-     * @param args Command line arguments (not used)
-     */
-    public static void main(String[] args) {
-        // Assuming the repositories are implemented and passed to the Service constructor
-        IRepository<Customer> customerIRepository = createInMemoryCustomerRepository();
-        IRepository<Employee> employeeIRepository = createInMemoryEmployeeRepository();
-        IRepository<Delivery> deliveryIRepository = createInMemoryDeliveryRepository();
-        IRepository<Delivery_Person> deliveryPersonIRepository = createInMemoryDeliveryPersonRepository();
-        IRepository<Deposit> depositIRepository = createInMemoryDepositRepository();
-        IRepository<Personal_Vehicle> personalVehicleIRepository = createInMemoryPersonalVehicleRepository();
-        IRepository<Department> departmentIRepository = createInMemoryDepartmentRepository();
-        IRepository<Order> orderIRepository = createInMemoryOrderRepository();
-        IRepository<Store> storeIRepository = createInMemoryStoreRepository();
-        IRepository<Packages> packagesIRepository = createInMemoryPackageRepository();
-        IRepository<Customer> customerRepository = new InFileRepository<>(
-                "src/data/customers.txt",
-                Customer::toCsv,
-                Customer::fromCsv
-        );
-        IRepository<Store> storeRepository = new InFileRepository<>(
-                "src/data/stores.txt",
-                Store::toCsv,
-                Store::fromCsv
-        );
-        IRepository<Deposit>depositRepository = new InFileRepository<>(
-                "src/data/deposits.txt",
-                Deposit::toCsv,
-                Deposit::fromCsv
-        );
-        IRepository<Order> orderRepository = new InFileRepository<>(
-                "src/data/orders.txt",
-                Order::toCsv,
-                Order::fromCsv
-        );
-        IRepository<Packages> packagesRepository = new InFileRepository<>(
-                "src/data/package.txt",
-                Packages::toCsv,
-                Packages::fromCsv
-        );
-        IRepository<Employee> employeeRepository = new InFileRepository<>(
-                "src/data/employees.txt",
-                Employee::toCsv,
-                Employee::fromCsv
-        );
-        IRepository<Delivery> deliveryRepository = new InFileRepository<>(
-                "src/data/delivery.txt",
-                Delivery::toCsv,
-                Delivery::fromCsv
-        );
-        IRepository<Personal_Vehicle> personalVehicleRepository = new InFileRepository<>(
-                "src/data/personalVehicles.txt",
-                Personal_Vehicle::toCsv,
-                Personal_Vehicle::fromCsv
-        );
-        IRepository<Delivery_Person> deliveryPersonRepository = new InFileRepository<>(
-                "src/data/deliveryPerson.txt",
-                Delivery_Person::toCsv,
-                Delivery_Person::fromCsv
-        );
-        IRepository<Department> departmentRepository = new InFileRepository<>(
-                "src/data/departments.txt",
-                Department::toCsv,
-                Department::fromCsv
-        );
-        Service service = new Service(storeIRepository,packagesIRepository,orderIRepository,customerIRepository,departmentIRepository,employeeIRepository,deliveryIRepository,depositIRepository,deliveryPersonIRepository,personalVehicleIRepository);
-        Service service1 = new Service(storeRepository,packagesRepository,orderRepository,customerRepository,departmentRepository,employeeRepository,deliveryRepository,depositRepository,deliveryPersonRepository,personalVehicleRepository);
-        Controller controller = new Controller(service1);
-        new APP3(controller);
     }
 }
