@@ -18,15 +18,12 @@ dependencies {
     // PostgreSQL driver for database connection
     implementation 'org.postgresql:postgresql:42.7.4'
 
-    // Optional: Logging library for better debug messages
-    implementation 'org.slf4j:slf4j-simple:2.0.9'
 }
-/*
 test {
     useJUnitPlatform()
     testLogging.showStandardStreams=true
 }
-*/
+
 sourceSets {
     main {
         java {
@@ -34,3 +31,4 @@ sourceSets {
         }
     }
 }
+

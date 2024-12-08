@@ -21,6 +21,11 @@ public class Main {
             Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
             RowMapper<Department>departmentsRowMapper = rs -> new Department(
                     rs.getInt("departmentid"),
+/*
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola");
+            RowMapper<Department>departmentsRowMapper = rs -> new Department(
+                    rs.getInt("departmentID"),
+ */
                     rs.getString("name"),
                     rs.getString("task")
             );
