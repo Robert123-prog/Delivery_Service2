@@ -12,11 +12,13 @@ public class DBRepository<T extends HasID> {
     private final Connection connection;
     private final String tableName;
     private final RowMapper<T> rowMapper;
+    private final String primaryKeyColumn;
 
-    public DBRepository(Connection connection, String tableName, RowMapper<T> rowMapper) {
+    public DBRepository(Connection connection, String tableName, RowMapper<T> rowMapper, String primaryKeyColumn) {
         this.connection = connection;
         this.tableName = tableName;
         this.rowMapper = rowMapper;
+        this.primaryKeyColumn = primaryKeyColumn;
     }
 
     public void create(T obj) {
@@ -46,7 +48,7 @@ public class DBRepository<T extends HasID> {
 
     public void update(T obj) {
         try {
-            String query = "UPDATE " + tableName + " SET " + obj.getClass().getMethod("getUpdateValues").invoke(obj) + " WHERE id = " + obj.getId();
+            String query = "UPDATE " + tableName + " SET " + obj.getClass().getMethod("getUpdateValues").invoke(obj) + " WHERE " + primaryKeyColumn + " = " + obj.getId();
             try (Statement st = connection.createStatement()) {
                 st.executeUpdate(query);
             }
@@ -56,7 +58,7 @@ public class DBRepository<T extends HasID> {
     }
 
     public void delete(Integer id) {
-        String query = "DELETE FROM " + tableName + " WHERE id = " + id;
+        String query = "DELETE FROM " + tableName + " WHERE " + primaryKeyColumn + " = " + id;
         try (Statement st = connection.createStatement()) {
             st.executeUpdate(query);
         } catch (SQLException e) {
@@ -65,7 +67,7 @@ public class DBRepository<T extends HasID> {
     }
 
     public T get(Integer id) {
-        String query = "SELECT * FROM " + tableName + " WHERE id = " + id;
+        String query = "SELECT * FROM " + tableName + " WHERE " + primaryKeyColumn + " = " + id;
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {
             if (rs.next()) {
@@ -79,11 +81,11 @@ public class DBRepository<T extends HasID> {
 
     public Set<Integer> getKeys() {
         Set<Integer> keys = new HashSet<>();
-        String query = "SELECT id FROM " + tableName;
+        String query = "SELECT " + primaryKeyColumn + " FROM " + tableName;
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {
             while (rs.next()) {
-                keys.add(rs.getInt("id"));
+                keys.add(rs.getInt(primaryKeyColumn));
             }
         } catch (SQLException e) {
             e.printStackTrace();
