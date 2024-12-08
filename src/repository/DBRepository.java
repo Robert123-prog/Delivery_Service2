@@ -13,12 +13,10 @@ public class DBRepository<T extends HasID> implements IRepository<T> {
     private final String tableName;
     private final String primaryKeyColumn;
     private final RowMapper<T> rowMapper;
-    private final String primaryKeyColumn;
 
     public DBRepository(Connection connection, String tableName, RowMapper<T> rowMapper, String primaryKeyColumn) {
         this.connection = connection;
         this.tableName = tableName;
-        this.primaryKeyColumn = primaryKeyColumn;
         this.rowMapper = rowMapper;
         this.primaryKeyColumn = primaryKeyColumn;
     }
