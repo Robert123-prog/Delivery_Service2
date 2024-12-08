@@ -133,6 +133,7 @@ public class Service {
      * @param /cost Total cost of the order
      * @param /status Current status of the order
      */
+
     public void placeOrder(Integer customerId, Integer orderID, Date orderDate, LocalDateTime deliveryDateTime, List<Integer> packageIds) {
         Customer customer = customerIRepository.get(customerId);
         if (customer == null) {
@@ -393,6 +394,8 @@ public class Service {
      *                 If {@code null}, no orders will be returned.
      * @return a list of orders that match the specified location.
      */
+
+    //TODO complex
     public List<Order> filterDeliveriesByLocation(String location) {
         List<Order> allOrders = orderIRepository.readAll();
         List<Order> filteredOrders = new ArrayList<>();
