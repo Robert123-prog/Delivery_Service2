@@ -124,7 +124,7 @@ public class Department implements HasID {
      * @return A comma-separated string of column names.
      */
     public static String getColumns() {
-        return "departmentID, name, task";
+        return "name, task";
     }
 
     /**
@@ -134,8 +134,7 @@ public class Department implements HasID {
      */
     public String getValues() {
         return String.format(
-                "%d, '%s', '%s'",
-                departmentID,
+                "'%s', '%s'",
                 name,
                 task
         );

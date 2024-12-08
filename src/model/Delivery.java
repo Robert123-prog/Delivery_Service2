@@ -220,14 +220,14 @@ public class Delivery implements HasID {
      * @return A formatted string of the instance variable values.
      */
     public String getValues() {
-        return String.format(
-                "%d, %d, %d, %d, %d, '%s', '%s'",
+        return String.format(//%d, %d, %d, %d, '%s',
+                "%d, '%s'",
                 deliveryID,
-                deliveryPersonID,
-                employeeID,
-                orderID,
-                transportationID,
-                transportation_type != null ? transportation_type.toString() : null,
+                //deliveryPersonID,
+                //employeeID,
+                //orderID,
+                //transportationID,
+                //transportation_type != null ? transportation_type.toString() : null,
                 location
         );
     }

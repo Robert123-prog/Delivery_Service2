@@ -17,6 +17,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.3'
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.3'
 
+
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-api:5.11.3'
 
     // PostgreSQL driver for database connection
@@ -24,7 +25,6 @@ dependencies {
 
     implementation 'org.junit.jupiter:junit-jupiter:5.11.0-M1'
 }
-
 test {
     useJUnitPlatform()
 //    testLogging.showStandardStreams=true
@@ -37,3 +37,4 @@ sourceSets {
         }
     }
 }
+
