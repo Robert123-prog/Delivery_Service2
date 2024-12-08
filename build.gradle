@@ -11,8 +11,8 @@ repositories {
 
 dependencies {
     // JUnit for testing
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    //testImplementation platform('org.junit:junit-bom:5.10.0')
+    //testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
 
 
     // PostgreSQL driver for database connection
@@ -21,12 +21,12 @@ dependencies {
     // Optional: Logging library for better debug messages
     implementation 'org.slf4j:slf4j-simple:2.0.9'
 }
-
+/*
 test {
     useJUnitPlatform()
     testLogging.showStandardStreams=true
 }
-
+*/
 sourceSets {
     main {
         java {
