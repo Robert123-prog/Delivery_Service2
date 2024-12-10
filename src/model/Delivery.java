@@ -21,13 +21,13 @@ public class Delivery implements HasID {
     private Integer deliveryPersonID;
 
     /** ID of the employee handling this delivery */
-    private int employeeID;
+    private Integer employeeID;
 
     /** ID of the order being delivered */
     private Integer orderID;
 
     /** ID of the transportation method used */
-    private int transportationID;
+    private Integer transportationID;
 
     /** Timestamp of when the delivery is scheduled */
     //private Timestamp time;
@@ -239,10 +239,10 @@ public class Delivery implements HasID {
      */
     public String getUpdateValues() {
         return String.format(
-                "deliveryPersonID = %d, employeeID = %d, orderID = %d, transportationID = %d, transportation_type = '%s', location = '%s'",
+                "deliveryPersonID = %d, employeeID = %d, transportationID = %d, transportation_type = '%s', location = '%s'",
                 deliveryPersonID,
                 employeeID,
-                orderID,
+                //orderID,
                 transportationID,
                 transportation_type != null ? transportation_type.toString() : null,
                 location
