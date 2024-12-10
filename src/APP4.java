@@ -150,7 +150,7 @@ public class APP4 {
             System.out.println("7. Create Package");
             System.out.println("8. Remove Package");
             System.out.println("9. View all Packages");
-            System.out.println("10.Create a Delivery");
+            System.out.println("10. Create a Delivery");
             System.out.println("11. Back to Main Menu");
             System.out.print("Select an option: ");
             int choice = scanner.nextInt();
@@ -620,7 +620,7 @@ public class APP4 {
     }
 
     public static boolean testDatabaseConnection() {
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "parola")) {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola")) {
             return connection != null;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -741,7 +741,7 @@ public class APP4 {
 
     public static Object[] createDbServices() {
         try {
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "parola");
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola");
 
             // Creează și returnează instanțele de DbService
             RowMapper<Department> departmentsRowMapper = rs -> new Department(
