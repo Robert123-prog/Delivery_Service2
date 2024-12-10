@@ -1,4 +1,5 @@
 import controller.*;
+import exceptions.ValidationException;
 import model.*;
 import repository.*;
 import service.*;
@@ -162,10 +163,17 @@ public class APP4 {
                 case 2:
                     System.out.print("Enter Store Name: ");
                     String storeName = scanner.nextLine();
+                    if (storeName.isEmpty()) throw new ValidationException("Invalid store name");
+
                     System.out.print("Enter Store Address: ");
                     String storeAddress = scanner.nextLine();
+                    if (storeAddress.isEmpty()) throw new ValidationException("Invalid store address");
+
                     System.out.print("Enter Store Contact: ");
                     String storeContact = scanner.nextLine();
+                    if (storeContact.isEmpty()) throw new ValidationException("Invalid store contact");
+
+
                     sellerController.createStore(storeName, storeAddress, storeContact);
                     break;
                 case 3:
@@ -174,8 +182,14 @@ public class APP4 {
                     scanner.nextLine(); // Consume newline
                     System.out.print("Enter Deposit Address: ");
                     String depositAddress = scanner.nextLine();
+                    if (depositAddress.isEmpty()) throw new ValidationException("Invalid deposit address");
+
+
                     System.out.print("Enter Deposit Status: ");
                     String depositStatus = scanner.nextLine();
+                    if (depositStatus.isEmpty()) throw new ValidationException("Invalid deposit status");
+
+
                     sellerController.registerDeposit(storeId, depositAddress, depositStatus);
                     break;
                 case 4:
@@ -205,6 +219,9 @@ public class APP4 {
                     scanner.nextLine(); // Consume newline
                     System.out.print("Enter Package Dimensions: ");
                     String dimensions = scanner.nextLine();
+                    if (dimensions.isEmpty()) throw new ValidationException("Invalid dimensions");
+
+
                     sellerController.createPackage(cost, weight, dimensions);
                     break;
                 case 8:
@@ -223,6 +240,9 @@ public class APP4 {
                 case 10:
                     System.out.println("Enter a location for a Delivery to be created:");
                     String location = scanner.nextLine();
+                    if (location.isEmpty()) throw new ValidationException("Invalid location");
+
+
                     sellerController.createDelivery(location);
                 case 11:
                     return;
@@ -259,12 +279,24 @@ public class APP4 {
                 case 2:
                     System.out.print("Enter Name: ");
                     String name = scanner.nextLine();
+                    if (name.isEmpty()) throw new ValidationException("Invalid name");
+
+
                     System.out.print("Enter Address: ");
                     String address = scanner.nextLine();
+                    if (address.isEmpty()) throw new ValidationException("Invalid address");
+
+
                     System.out.print("Enter Phone: ");
                     String phone = scanner.nextLine();
+                    if (phone.isEmpty()) throw new ValidationException("Invalid phone");
+
+
                     System.out.print("Enter Email: ");
                     String email = scanner.nextLine();
+                    if (email.isEmpty()) throw new ValidationException("Invalid email");
+
+
                     customerController.createLoggedInCustomer(name, address, phone, email);
                     break;
                 case 3:
@@ -274,6 +306,9 @@ public class APP4 {
 
                     System.out.print("Enter order date (yyyy-mm-dd): ");
                     String orderDateString = scanner.nextLine();
+                    if (orderDateString.isEmpty()) throw new ValidationException("Invalid input");
+
+
                     Date orderDate = Date.valueOf(orderDateString);
 
 
@@ -397,10 +432,19 @@ public class APP4 {
                     scanner.nextLine(); // Consume newline
                     System.out.print("Enter Name: ");
                     String name = scanner.nextLine();
+                    if (name.isEmpty()) throw new ValidationException("Invalid input");
+
+
                     System.out.print("Enter Phone: ");
                     String phone = scanner.nextLine();
+                    if (phone.isEmpty()) throw new ValidationException("Invalid input");
+
+
                     System.out.print("Enter License: ");
                     String license = scanner.nextLine();
+                    if (license.isEmpty()) throw new ValidationException("Invalid input");
+
+
                     employeeController.createEmployee(departmentId, name, phone, license);
                     break;
                 case 3:
@@ -475,10 +519,19 @@ public class APP4 {
                 case 2:
                     System.out.print("Enter Name: ");
                     String name = scanner.nextLine();
+                    if (name.isEmpty()) throw new ValidationException("Invalid input");
+
+
                     System.out.print("Enter Phone: ");
                     String phone = scanner.nextLine();
+                    if (phone.isEmpty()) throw new ValidationException("Invalid input");
+
+
                     System.out.print("Enter License: ");
                     String license = scanner.nextLine();
+                    if (license.isEmpty()) throw new ValidationException("Invalid input");
+
+
                     deliveryPersonController.createDeliveryPerson(name, phone, license);
                     break;
                 case 3:
@@ -567,7 +620,7 @@ public class APP4 {
     }
 
     public static boolean testDatabaseConnection() {
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "parola")) {
             return connection != null;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -688,7 +741,7 @@ public class APP4 {
 
     public static Object[] createDbServices() {
         try {
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "parola");
 
             // Creează și returnează instanțele de DbService
             RowMapper<Department> departmentsRowMapper = rs -> new Department(

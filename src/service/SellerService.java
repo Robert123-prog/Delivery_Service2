@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.EntityNotFound;
 import model.*;
 import repository.IRepository;
 
@@ -49,9 +50,10 @@ public class SellerService {
      * @throws IllegalArgumentException if any required field is null or empty
      */
     public void registerStore(Integer storeId, String name, String address, String contact) {
-        if (storeId == null || name == null || name.isEmpty() || address == null || address.isEmpty() || contact == null || contact.isEmpty()) {
-            throw new IllegalArgumentException("All fields are required for shop registration.");
-        }
+        //TODO ADD VALIDATION EXCEPTION IN UI
+//        if (storeId == null || name == null || name.isEmpty() || address == null || address.isEmpty() || contact == null || contact.isEmpty()) {
+//            throw new IllegalArgumentException("All fields are required for shop registration.");
+//        }
         Store newStore = new Store(storeId, name, address, contact);
         storeIRepository.create(newStore);
     }
@@ -67,20 +69,34 @@ public class SellerService {
     }
 
     public void registerDeposit(Integer depositId, Integer storeId, String address, String status) {
+        List<Store> stores = storeIRepository.readAll();
+        boolean existsStore = false;
+
+        for (Store store: stores){
+            if (store.getStoreID() == storeId){
+                existsStore = true;
+                break;
+            }
+        }
+
+        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
+
+        //TODO ADD VALIDATION EXCEPTION IN UI
+/*
         if (depositId == null || storeId == null ||
                 address == null || address.isEmpty() ||
                 status == null || status.isEmpty()) {
             throw new IllegalArgumentException("All fields are required for deposit registration.");
         }
+
+ */
         Deposit newDeposit = new Deposit(depositId, address, status, storeId);
         depositIRepository.create(newDeposit);
+
         Store store = storeIRepository.get(storeId);
-        if (store != null) {
-            store.addDeposit(newDeposit);
-            storeIRepository.update(store);
-        } else {
-            throw new IllegalArgumentException("Deposit with ID " + storeId + " not found.");
-        }
+        store.addDeposit(newDeposit);
+        storeIRepository.update(store);
+
     }
 
     public List<Deposit> getDeposits(){
@@ -89,15 +105,22 @@ public class SellerService {
 
     //TODO still not working
     public void removeStore(Integer storeId) {
-        Store store = storeIRepository.get(storeId);
+        List<Store> stores = storeIRepository.readAll();
+        boolean existsStore = false;
 
-        if (store == null) {
-            throw new IllegalArgumentException("Store with ID " + storeId + " does not exist.");
+        for (Store store: stores){
+            if (store.getStoreID() == storeId){
+                existsStore = true;
+                break;
+            }
         }
+
+        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
+
+        Store store = storeIRepository.get(storeId);
 
         // get the deposits associated
         List<Deposit> deposits = store.getDeposits();
-
 
         for (Deposit deposit : deposits) {
             //null not supported by the fromCsv method
@@ -110,6 +133,30 @@ public class SellerService {
     }
 
     public void removeDeposit(Integer storeId, Integer depositId) {
+        List<Store> stores = storeIRepository.readAll();
+        boolean existsStore = false;
+
+        for (Store store: stores){
+            if (store.getStoreID() == storeId){
+                existsStore = true;
+                break;
+            }
+        }
+
+        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
+
+        List<Deposit> deposits = depositIRepository.readAll();
+        boolean existsDeposit = false;
+
+        for (Deposit deposit: deposits){
+            if (Objects.equals(deposit.getDepositID(), depositId)){
+                existsDeposit = true;
+                break;
+            }
+        }
+        if (!existsDeposit) throw new EntityNotFound("No deposit found with ID " + depositId);
+
+
         //Deposit deposit = depositIRepository.get(depositId);
         Store store = storeIRepository.get(storeId);
         store.getDeposits().removeIf(deposit -> Objects.equals(deposit.getDepositID(), depositId));
@@ -137,10 +184,18 @@ public class SellerService {
     }
 
     public void removePackage(Integer packageId){
-        Packages packages = packageIRepository.get(packageId);
-        if (packages != null) {
-            customerIRepository.delete(packageId);
+        List<Packages> packages = packageIRepository.readAll();
+        boolean existsPackage = false;
+
+        for (Packages packages1: packages){
+            if (Objects.equals(packages1.getPackageID(), packageId)){
+                existsPackage = true;
+                break;
+            }
         }
+        if (!existsPackage) throw new EntityNotFound("No package found with ID " + packageId);
+
+        customerIRepository.delete(packageId);
     }
 
     /**
@@ -164,21 +219,21 @@ public class SellerService {
     /** Creates a new delivery with the specified delivery ID, orders, and location,
      * and adds it to the repository.
      *
-     * @param deliveryid the unique identifier for the new delivery. Must not be {@code null}.
+     * @param deliveryID the unique identifier for the new delivery. Must not be {@code null}.
      * @param orders     the list of orders to associate with the delivery.
      *                   If {@code null} or empty, no orders will be added.
      * @param location   the location for the delivery. Can be {@code null}.
      */
-    public void createDelivery(Integer deliveryid, List<Order> orders, String location) {
-        Delivery delivery = new Delivery(deliveryid);
+    public void createDelivery(Integer deliveryID, List<Order> orders, String location) {
+        Delivery delivery = new Delivery(deliveryID);
         deliveryIRepository.create(delivery);
         delivery.setLocation(location);
+
         if (orders != null) {
             for (Order order : orders) {
                 delivery.addOrder(order);
             }
         }
-
     }
 
     public Integer getNewDeliveryId() {

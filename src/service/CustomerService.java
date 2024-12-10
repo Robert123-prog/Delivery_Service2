@@ -1,5 +1,8 @@
 package service;
 
+import exceptions.BusinessLogicException;
+import exceptions.DatabaseException;
+import exceptions.EntityNotFound;
 import model.*;
 import repository.*;
 
@@ -8,6 +11,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 public class CustomerService {
     private final IRepository<Customer> customerIRepository;
@@ -25,30 +29,50 @@ public class CustomerService {
 
     public List<Order> getOrdersFromCustomers(Integer customerId) {
         Customer customer = customerIRepository.get(customerId);
+        if (customer == null){
+            throw new EntityNotFound("No customer was found with ID " + customerId);
+        }
         return customer.getOrders();
     }
 
     public List<Order> getOrders() {
-        return orderIRepository.readAll();
+        List<Order> orders = orderIRepository.readAll();
+
+        if (orders.isEmpty()) throw new DatabaseException("No orders were found");
+
+        return orders;
     }
 
     public List<Delivery> getDelivery() {
-        return deliveryIRepository.readAll();
+        List<Delivery> deliveries = deliveryIRepository.readAll();
+
+        if (deliveries.isEmpty()) throw new DatabaseException("No deliveries were found");
+
+        return deliveries;
     }
 
     public List<Customer> getCustomers() {
-        return customerIRepository.readAll();
+        List<Customer> customers = customerIRepository.readAll();
+
+        if (customers.isEmpty()) throw new DatabaseException("No customers were found");
+
+        return customers;
     }
 
     public List<Packages> getPackages() {
-        return packageIRepository.readAll();
+        List<Packages> packages = packageIRepository.readAll();
+
+        if (packages.isEmpty()) throw new DatabaseException("No packages were found");
+
+        return packages;
     }
 
     public void deleteCustomer(Integer customerId) {
         Customer customer = customerIRepository.get(customerId);
-        if (customer != null) {
-            customerIRepository.delete(customerId);
-        }
+
+        if (customer == null) throw new DatabaseException("No customer was found");
+
+        customerIRepository.delete(customerId);
     }
 
     public Integer getLastLoggedInCustomerId() {
@@ -63,11 +87,11 @@ public class CustomerService {
 
     public void placeOrder(Integer customerId, Integer orderID, Date orderDate, LocalDateTime deliveryDateTime, List<Integer> packageIds) {
         Customer customer = customerIRepository.get(customerId);
-        if (customer == null) {
-            throw new IllegalArgumentException("Customer not found for ID: " + customerId);
-        }
+
+        if (customer == null) throw new DatabaseException("No customer was found");
 
         String location = customer.getAddress();
+
         Order order = new Order(orderID, customerId, orderDate, deliveryDateTime);
         order.setLocation(location);
 
@@ -95,25 +119,30 @@ public class CustomerService {
      */
     public double calculateAndUpdateOrderCost(Integer orderId) {
         Order order = orderIRepository.get(orderId);
+
+        if (order == null) throw new DatabaseException("No order was found");
+
         double totalCost = order.getPackages().stream()
                 .mapToDouble(Packages::getCost)
                 .sum();
         order.setCost(totalCost);
         orderIRepository.update(order);
         return totalCost;
+
     }
 
     public void removeOrder(Integer customerId, Integer orderID) {
         Customer customer = customerIRepository.get(customerId);
-        if (customer != null && customer.getOrders() != null) {
-            Order order = orderIRepository.get(orderID);
 
-            if (order != null && customer.getOrders().remove(order)) {
-                // Successfully removed order from customer's orders list
-                orderIRepository.delete(orderID); // Delete the order from repository
-                customerIRepository.update(customer);
-            }
-        }
+        if (customer == null) throw new DatabaseException("No customer was found");
+        if (customer.getOrders() == null) throw new BusinessLogicException("The customer has no related orders");
+
+        Order order = orderIRepository.get(orderID);
+
+        if (order == null) throw new DatabaseException("No order was found");
+
+        orderIRepository.delete(orderID); // Delete the order from repository
+        customerIRepository.update(customer);
     }
 
     /**
@@ -129,7 +158,7 @@ public class CustomerService {
             order.setDeliveryDateTime(deliveryDateTime);
             orderIRepository.update(order);
         } else {
-            throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
+            throw new DatabaseException("No order found");
         }
     }
 
@@ -140,9 +169,13 @@ public class CustomerService {
      * @return a new list of orders sorted in descending order by price.
      */
     public List<Order> getOrdersSortedByPriceDescending(List<Order> orders) {
-        return orders.stream()
-                .sorted(Comparator.comparingDouble(Order::getCost).reversed())
-                .collect(Collectors.toList());
+        try {
+            return orders.stream()
+                    .sorted(Comparator.comparingDouble(Order::getCost).reversed())
+                    .collect(Collectors.toList());
+        }catch (EntityNotFound e){
+            throw new DatabaseException("No order found");
+        }
     }
 
     /**

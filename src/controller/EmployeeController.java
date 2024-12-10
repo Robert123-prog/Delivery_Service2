@@ -1,6 +1,10 @@
 package controller;
 
+import exceptions.BusinessLogicException;
+import exceptions.EntityNotFound;
 import model.Delivery;
+import model.Department;
+import model.Employee;
 import service.EmployeeService;
 
 import java.util.List;
@@ -31,6 +35,18 @@ public class EmployeeController {
      * @param license      the license number of the employee
      */
     public void createEmployee(Integer departmentId, String name, String phone, String license) {
+        List<Department> departments = employeeService.getDepartments();
+        boolean existsDepartment = false;
+
+        for (Department department: departments){
+            if (department.getDepartmentID() == departmentId){
+                existsDepartment = true;
+                break;
+            }
+        }
+
+        if (!existsDepartment) throw new EntityNotFound("No department found with ID " + departmentId);
+
         Integer employeeId = employeeService.getNewEmployeeId();
         employeeService.createEmployee(employeeId, departmentId, name, phone, license);
         System.out.println("Registered employee " + employeeId + " to department " + departmentId);
@@ -43,6 +59,18 @@ public class EmployeeController {
      * @return list containing all deliveries assigned to Employee
      */
     public List<Delivery> getDeliveriesForEmployee(Integer employeeID) {
+        List<Employee> employees = employeeService.getEmployees();
+        boolean existsEmployee = false;
+
+        for (Employee employee: employees){
+            if (employee.getEmployeeID() == employeeID){
+                existsEmployee = true;
+                break;
+            }
+        }
+
+        if(!existsEmployee) throw new EntityNotFound("No employee found with ID " + employeeID);
+
         return employeeService.getDeliveriesForEmployee(employeeID);
     }
 
@@ -63,6 +91,36 @@ public class EmployeeController {
      * @param deliveryID unique identifier for Delivery object
      */
     public void dropDelivery(Integer employeeID, Integer deliveryID) {
+        List<Employee> employees = employeeService.getEmployees();
+        boolean existsEmployee = false;
+
+        for (Employee employee: employees){
+            if (employee.getEmployeeID() == employeeID){
+                existsEmployee = true;
+                break;
+            }
+        }
+
+        if(!existsEmployee) throw new EntityNotFound("No employee found with ID " + employeeID);
+
+        List<Delivery> deliveries = employeeService.getDelivery();
+        Delivery assigendDelivery = null;
+        boolean existsDelivery = false;
+
+        for (Delivery delivery: deliveries){
+            if (Objects.equals(delivery.getDeliveryID(), deliveryID)){
+                existsDelivery = true;
+                assigendDelivery = delivery;
+                break;
+            }
+        }
+
+        if(!existsDelivery) throw new EntityNotFound("No delivery found with ID " + deliveryID);
+
+        if (!Objects.equals(assigendDelivery.getEmployeeID(), employeeID)){
+            throw new BusinessLogicException("The chosen delivery is not assigned to the chosen employee!");
+        }
+
         employeeService.dropDelivery(employeeID, deliveryID);
         System.out.println("Dropped Delivery with id " + deliveryID + " by Employee with id " + employeeID + " successfully");
     }
@@ -74,6 +132,36 @@ public class EmployeeController {
      * @param deliveryID unique identifier for Delivery object
      */
     public void assignEmployeeToUnassignedDelivery(Integer employeeID, Integer deliveryID) {
+        List<Employee> employees = employeeService.getEmployees();
+        boolean existsEmployee = false;
+
+        for (Employee employee: employees){
+            if (employee.getEmployeeID() == employeeID){
+                existsEmployee = true;
+                break;
+            }
+        }
+
+        if(!existsEmployee) throw new EntityNotFound("No employee found with ID " + employeeID);
+
+        List<Delivery> deliveries = employeeService.getDelivery();
+        Delivery assigendDelivery = null;
+        boolean existsDelivery = false;
+
+        for (Delivery delivery: deliveries){
+            if (Objects.equals(delivery.getDeliveryID(), deliveryID)){
+                existsDelivery = true;
+                assigendDelivery = delivery;
+                break;
+            }
+        }
+
+        if(!existsDelivery) throw new EntityNotFound("No delivery found with ID " + deliveryID);
+
+        if (assigendDelivery.getEmployeeID() != null || assigendDelivery.getDeliveryPeronID() != null){
+            throw new BusinessLogicException("The chosen delivery is already assigned to an employee!");
+        }
+
         employeeService.pickDelivery(employeeID, deliveryID);
         System.out.println("Picked Delivery with id " + deliveryID + " by Employee with id " + employeeID + " successfully");
     }
