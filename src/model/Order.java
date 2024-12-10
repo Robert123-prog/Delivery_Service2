@@ -263,6 +263,13 @@ public class Order implements HasID {
         );
     }
 
+    public void updateTotalCost() {
+        double total = 0.0;
+        for (Packages pack : packages) {
+            total += pack.getCost(); // Adaugă costul fiecărui pachet
+        }
+        this.setTotalCost(total); // Setează costul total în comandă
+    }
     /**
      * Gets the unique identifier for this object, as required by HasID interface.
      *

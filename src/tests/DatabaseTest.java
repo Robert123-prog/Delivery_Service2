@@ -9,6 +9,7 @@ import service.CustomerService;
 import service.DeliveryPersonService;
 import service.SellerService;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -282,7 +283,7 @@ public class DatabaseTest {
     }
 
     @Test
-    public void testPlaceOrder() {
+    public void testPlaceOrder() throws SQLException {
         Integer customerId = 1;
         Integer orderId = 1;
         Date orderDate = new Date(2024 - 12 - 12);
