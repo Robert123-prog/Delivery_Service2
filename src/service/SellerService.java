@@ -130,6 +130,7 @@ public class SellerService {
 
         // Delete the store from the repository
         storeIRepository.delete(storeId);
+
     }
 
     public void removeDeposit(Integer storeId, Integer depositId) {
@@ -234,6 +235,7 @@ public class SellerService {
                 delivery.addOrder(order);
             }
         }
+        deliveryIRepository.update(delivery);
     }
 
     public Integer getNewDeliveryId() {
