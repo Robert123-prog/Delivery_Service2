@@ -45,18 +45,6 @@ public class DeliveryPersonService {
      * @param license Driver's license number
      */
     public void enrollAsDriver(Integer deliveryPersonId, String name, String phone, String license) {
-        List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
-        boolean existsDeliveryPerson = false;
-
-        for (Delivery_Person deliveryPerson: deliveryPeople){
-            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
-                existsDeliveryPerson = true;
-                break;
-            }
-        }
-
-        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
-
         Delivery_Person deliveryPerson = new Delivery_Person(deliveryPersonId,name,phone);
 
         deliveryPerson.setVerified(true);
@@ -193,18 +181,6 @@ public class DeliveryPersonService {
      * @return true if license is valid, false otherwise
      */
     public boolean verifyDeliveryPersonLicense(Integer deliveryPersonId,String license) {
-        List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
-        boolean existsDeliveryPerson = false;
-
-        for (Delivery_Person deliveryPerson: deliveryPeople){
-            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
-                existsDeliveryPerson = true;
-                break;
-            }
-        }
-
-        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
-
         if (isLicenseCategoryValid(license)) {
             System.out.println("License for delivery person " + deliveryPersonId + " is valid.");
             return true;

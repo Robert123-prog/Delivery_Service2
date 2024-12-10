@@ -157,6 +157,7 @@ public class SellerService {
         }
 
         storeIRepository.delete(storeId);
+
     }
 
     /**

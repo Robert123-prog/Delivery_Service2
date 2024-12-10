@@ -137,7 +137,6 @@ public class Store implements HasID {
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", contact='" + contact + '\'' +
-                ", deposits=" + deposits +
                 '}';
     }
 
