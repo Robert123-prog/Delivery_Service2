@@ -129,7 +129,6 @@ public class Deposit implements HasID {
                 ", storeID=" + storeID +
                 ", address='" + address + '\'' +
                 ", status='" + status + '\'' +
-                ", packages=" + packages +
                 '}';
     }
 

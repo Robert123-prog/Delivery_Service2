@@ -49,17 +49,6 @@ public class DeliveryPersonController {
      * @return true if the license is valid; false otherwise
      */
     public boolean verifyDeliveryPerson(Integer deliveryPersonId, String license) {
-        List<Delivery_Person> deliveryPeople = deliveryPersonService.getDeliveryPerson();
-        boolean existsDeliveryPerson = false;
-
-        for (Delivery_Person deliveryPerson: deliveryPeople){
-            if (deliveryPerson.getId() == deliveryPersonId){
-                existsDeliveryPerson = true;
-            }
-        }
-
-        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
-
         return deliveryPersonService.verifyDeliveryPersonLicense(deliveryPersonId, license);
     }
 
