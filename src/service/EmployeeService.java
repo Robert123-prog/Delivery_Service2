@@ -1,5 +1,7 @@
 package service;
 
+import exceptions.BusinessLogicException;
+import exceptions.EntityNotFound;
 import model.*;
 import repository.IRepository;
 
@@ -32,12 +34,21 @@ public class EmployeeService {
     public void createEmployee(Integer Id, Integer departmentId, String name, String phone, String license) {
         Employee employee = new Employee(Id, departmentId, name, phone, license);
         employeeIRepository.create(employee);
-        Department department = departmentIRepository.get(departmentId);
-        if (department != null) {
-            department.addEmployee(employee);
-        } else {
-            throw new IllegalArgumentException("Department with ID " + departmentId + " not found.");
+
+        List<Department> departments = departmentIRepository.readAll();
+        boolean existsDepartment = false;
+
+        for (Department department: departments){
+            if (department.getDepartmentID() == departmentId){
+                existsDepartment = true;
+                break;
+            }
         }
+
+        if (!existsDepartment) throw new EntityNotFound("No department found with ID " + departmentId);
+
+        Department department = departmentIRepository.get(departmentId);
+        department.addEmployee(employee);
     }
 
     public List<Department> getDepartments() {
@@ -51,8 +62,25 @@ public class EmployeeService {
      * @return List of deliveries assigned to the employee
      */
     public List<Delivery> getDeliveriesForEmployee(Integer employeeId) {
+        List<Employee> employees = employeeIRepository.readAll();
+        boolean existsEmployee = false;
+
+        for (Employee employee: employees){
+            if (employee.getEmployeeID() == employeeId){
+                existsEmployee = true;
+                break;
+            }
+        }
+
+        if (!existsEmployee) throw new EntityNotFound("No employee found with ID " + employeeId);
+
         Employee employee = employeeIRepository.get(employeeId);
-        return employee.getDeliveries();
+
+        List<Delivery> deliveries = employee.getDeliveries();
+
+        if (deliveries.isEmpty()) throw new BusinessLogicException("The selected employee has no related deliveries");
+
+        return deliveries;
     }
 
     public Integer getNewEmployeeId() {
@@ -78,29 +106,72 @@ public class EmployeeService {
      * @throws IllegalArgumentException if employee or delivery not found
      */
     public void dropDelivery(Integer employeeId, Integer deliveryId) {
-        Employee employee = employeeIRepository.get(employeeId);
-        Delivery delivery = deliveryIRepository.get(deliveryId);
-        if (employee != null && delivery != null) {
-            employee.removeDeliv(deliveryId);
-            delivery.setEmployeeID(0);
-            employeeIRepository.update(employee);
-            deliveryIRepository.update(delivery);
-        } else {
-            throw new IllegalArgumentException("Employee or Delivery not found.");
+        List<Employee> employees = employeeIRepository.readAll();
+        boolean existsEmployee = false;
+
+        for (Employee employee: employees){
+            if (employee.getEmployeeID() == employeeId){
+                existsEmployee = true;
+                break;
+            }
         }
+
+        if (!existsEmployee) throw new EntityNotFound("No employee found with ID " + employeeId);
+
+        Employee employee = employeeIRepository.get(employeeId);
+
+        List<Delivery> deliveries = deliveryIRepository.readAll();
+        boolean existsDelivery = false;
+
+        for (Delivery delivery: deliveries){
+            if (delivery.getEmployeeID() == deliveryId){
+                existsDelivery = true;
+                break;
+            }
+        }
+
+        if (!existsDelivery) throw new EntityNotFound("No delivery found with ID " + deliveryId);
+
+        Delivery delivery = deliveryIRepository.get(deliveryId);
+
+        employee.removeDeliv(deliveryId);
+        delivery.setEmployeeID(0);
+        employeeIRepository.update(employee);
+        deliveryIRepository.update(delivery);
     }
 
     public void pickDelivery(Integer employeeId ,Integer deliveryId) {
+        List<Employee> employees = employeeIRepository.readAll();
+        boolean existsEmployee = false;
+
+        for (Employee employee : employees) {
+            if (employee.getEmployeeID() == employeeId) {
+                existsEmployee = true;
+                break;
+            }
+        }
+
+        if (!existsEmployee) throw new EntityNotFound("No employee found with ID " + employeeId);
+
+        List<Delivery> deliveries = deliveryIRepository.readAll();
+        boolean existsDelivery = false;
+
+        for (Delivery delivery : deliveries) {
+            if (delivery.getEmployeeID() == deliveryId) {
+                existsDelivery = true;
+                break;
+            }
+        }
+
+        if (!existsDelivery) throw new EntityNotFound("No delivery found with ID " + deliveryId);
+
         Delivery delivery = deliveryIRepository.get(deliveryId);
         Employee employee = employeeIRepository.get(employeeId);
-        if (delivery != null && employee != null) {
-            employee.addDelivery(delivery);
-            delivery.setEmployeeID(employeeId);
-            employeeIRepository.update(employee);
-            deliveryIRepository.update(delivery);
-        }
-        else
-            throw new IllegalArgumentException("Delivery with ID " + deliveryId + " not found.");
+
+        employee.addDelivery(delivery);
+        delivery.setEmployeeID(employeeId);
+        employeeIRepository.update(employee);
+        deliveryIRepository.update(delivery);
     }
 
     /**

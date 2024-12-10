@@ -1,9 +1,12 @@
 package controller;
 
-import model.Order;
+import exceptions.BusinessLogicException;
+import exceptions.EntityNotFound;
+import model.*;
 import service.SellerService;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class SellerController {
@@ -40,6 +43,18 @@ public class SellerController {
      * @param depositStatus  the status of the deposit
      */
     public void registerDeposit(Integer storeId, String depositAddress, String depositStatus) {
+        List<Store> stores = sellerService.getStores();
+        boolean existsStore = false;
+
+        for (Store store: stores){
+            if (store.getStoreID() == storeId){
+                existsStore = true;
+                break;
+            }
+        }
+
+        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
+
         Integer depositId = sellerService.getNewDepositId();
         sellerService.registerDeposit(depositId, storeId, depositAddress, depositStatus);
         System.out.println("Registered deposit " + depositId + " to store " + storeId);
@@ -60,6 +75,19 @@ public class SellerController {
      * @param storeId the ID of the store to delete
      */
     public void deleteStore(Integer storeId) {
+        List<Store> stores = sellerService.getStores();
+        boolean existsStore = false;
+
+        for (Store store: stores){
+            if (store.getStoreID() == storeId){
+                existsStore = true;
+                break;
+            }
+        }
+
+        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
+
+
         sellerService.removeStore(storeId);
         System.out.println("Removed store " + storeId);
     }
@@ -71,6 +99,36 @@ public class SellerController {
      * @param depositId the ID of the deposit to delete
      */
     public void deleteDeposit(Integer storeId, Integer depositId) {
+        List<Store> stores = sellerService.getStores();
+        boolean existsStore = false;
+
+        for (Store store: stores){
+            if (store.getStoreID() == storeId){
+                existsStore = true;
+                break;
+            }
+        }
+
+        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
+
+        List<Deposit> deposits = sellerService.getDeposits();
+        Deposit depositAssignedToStore = null;
+        boolean existsDeposit = false;
+
+        for (Deposit deposit: deposits){
+            if (Objects.equals(deposit.getDepositID(), depositId)){
+                existsDeposit = true;
+                depositAssignedToStore = deposit;
+                break;
+            }
+        }
+
+        if (!existsDeposit) throw new EntityNotFound("No deposit found with ID " + depositId);
+
+        if (depositAssignedToStore.getStoreID() == null){
+            throw new BusinessLogicException("The desired deposit is not assigned to the desired store!");
+        }
+
         sellerService.removeDeposit(storeId, depositId);
         System.out.println("Removed deposit " + depositId + " from store " + storeId);
     }
@@ -94,6 +152,18 @@ public class SellerController {
     }
 
     public void removePackage(Integer packageId){
+        List<Packages> packages = sellerService.getPackages();
+        boolean existsPackages = false;
+
+        for (Packages packages1: packages){
+            if (Objects.equals(packages1.getPackageID(), packageId)){
+                existsPackages = true;
+                break;
+            }
+        }
+
+        if (!existsPackages) throw new EntityNotFound("No package found with ID " + packageId);
+
         sellerService.removePackage(packageId);
     }
 
