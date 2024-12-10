@@ -1,9 +1,12 @@
 package service;
 
+import exceptions.BusinessLogicException;
+import exceptions.EntityNotFound;
 import model.*;
 import repository.IRepository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,12 +45,22 @@ public class DeliveryPersonService {
      * @param license Driver's license number
      */
     public void enrollAsDriver(Integer deliveryPersonId, String name, String phone, String license) {
-        // Create a new DeliveryPerson instance
+        List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
+        boolean existsDeliveryPerson = false;
+
+        for (Delivery_Person deliveryPerson: deliveryPeople){
+            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
+                existsDeliveryPerson = true;
+                break;
+            }
+        }
+
+        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
+
         Delivery_Person deliveryPerson = new Delivery_Person(deliveryPersonId,name,phone);
-        // Add the DeliveryPerson instance to both repositories if needed
+
         deliveryPerson.setVerified(true);
         deliveryPersonIRepository.create(deliveryPerson);
-        //employeeIRepository.create(deliveryPerson);
     }
 
     /**
@@ -64,13 +77,38 @@ public class DeliveryPersonService {
                 .collect(Collectors.toList());
     }
 
-    public void pickDeliveryToPerson(Integer deliverPersonId, Integer deliveryId) {
+    public void pickDeliveryToPerson(Integer deliveryPersonId, Integer deliveryId) {
+        List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
+        boolean existsDeliveryPerson = false;
+
+        for (Delivery_Person deliveryPerson: deliveryPeople){
+            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
+                existsDeliveryPerson = true;
+                break;
+            }
+        }
+
+        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
+
+        List<Delivery> deliveries = deliveryIRepository.readAll();
+        boolean existsDelivery= false;
+
+        for (Delivery delivery: deliveries){
+            if (Objects.equals(delivery.getId(), deliveryId)){
+                existsDelivery = true;
+                break;
+            }
+        }
+
+        if (!existsDelivery) throw new EntityNotFound("No delivery found with ID " + deliveryId);
+
         Delivery delivery = deliveryIRepository.get(deliveryId);
-        Delivery_Person deliveryPerson = deliveryPersonIRepository.get(deliverPersonId);
+        Delivery_Person deliveryPerson = deliveryPersonIRepository.get(deliveryPersonId);
+
         if (delivery != null && deliveryPerson != null) {
             deliveryPerson.addDelivery(delivery);
             deliveryPersonIRepository.update(deliveryPerson);
-            delivery.setDeliveryPeronID(deliverPersonId);
+            delivery.setDeliveryPeronID(deliveryPersonId);
             deliveryIRepository.update(delivery);
         }
     }
@@ -82,6 +120,31 @@ public class DeliveryPersonService {
      * @param personalVehicleId ID of the personal vehicle to assign
      */
     public void assignPersonalVehicle(Integer deliveryPersonId, Integer personalVehicleId){
+        List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
+        boolean existsDeliveryPerson = false;
+
+        for (Delivery_Person deliveryPerson: deliveryPeople){
+            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
+                existsDeliveryPerson = true;
+                break;
+            }
+        }
+
+        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
+
+        List<Personal_Vehicle> personalVehicles = personalVehicleIRepository.readAll();
+        boolean existsPersonalVehicle = false;
+
+        for (Personal_Vehicle personalVehicle: personalVehicles){
+            if (Objects.equals(personalVehicle.getId(), personalVehicleId)){
+                existsPersonalVehicle = true;
+                break;
+            }
+        }
+
+        if (!existsPersonalVehicle) throw new EntityNotFound("No personal vehicle found with ID " + personalVehicleId);
+
+
         Delivery_Person deliveryPerson = deliveryPersonIRepository.get(deliveryPersonId);
         Personal_Vehicle personalVehicle = personalVehicleIRepository.get(personalVehicleId);
 
@@ -92,9 +155,30 @@ public class DeliveryPersonService {
         personalVehicleIRepository.update(personalVehicle);
     }
 
+    public List<Personal_Vehicle> getPersonalVehicles(){
+        return personalVehicleIRepository.readAll();
+    }
+
     public List<Delivery> getDeliveriesForDeliveryPerson(Integer deliveryPersonId) {
+        List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
+        boolean existsDeliveryPerson = false;
+
+        for (Delivery_Person deliveryPerson: deliveryPeople){
+            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
+                existsDeliveryPerson = true;
+                break;
+            }
+        }
+
+        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
+
         Delivery_Person deliveryPerson = deliveryPersonIRepository.get(deliveryPersonId);
-        return deliveryPerson.getDeliveries();
+
+        List<Delivery> deliveries = deliveryPerson.getDeliveries();
+
+        if (deliveries.isEmpty()) throw new BusinessLogicException("The delivery person has no related deliveries");
+
+        return deliveries;
     }
 
     public List<Delivery_Person> getDeliveryPerson() {
@@ -109,6 +193,18 @@ public class DeliveryPersonService {
      * @return true if license is valid, false otherwise
      */
     public boolean verifyDeliveryPersonLicense(Integer deliveryPersonId,String license) {
+        List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
+        boolean existsDeliveryPerson = false;
+
+        for (Delivery_Person deliveryPerson: deliveryPeople){
+            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
+                existsDeliveryPerson = true;
+                break;
+            }
+        }
+
+        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
+
         if (isLicenseCategoryValid(license)) {
             System.out.println("License for delivery person " + deliveryPersonId + " is valid.");
             return true;
