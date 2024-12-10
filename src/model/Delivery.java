@@ -239,10 +239,9 @@ public class Delivery implements HasID {
      */
     public String getUpdateValues() {
         return String.format(
-                "deliveryPersonID = %d, employeeID = %d, orderID = %d, transportationID = %d, transportation_type = '%s', location = '%s'",
+                "deliveryPersonID = %d, employeeID = %d, transportationID = %d, transportation_type = '%s', location = '%s'",
                 deliveryPersonID,
                 employeeID,
-                orderID,
                 transportationID,
                 transportation_type != null ? transportation_type.toString() : null,
                 location

@@ -24,15 +24,6 @@ public class CustomerService {
         this.packageIRepository = packageIRepository;
     }
 
-    public List<Order> getOrdersFromCustomer(Integer customerId) {
-        // Folosind getAll() sau o metodă personalizată în funcție de implementare
-        List<Order> orders = orderIRepository.readAll();
-        // Filtrarea comenzilor pe baza customerId
-        return orders.stream()
-                .filter(order -> order.getCustomerID().equals(customerId))
-                .collect(Collectors.toList());
-    }
-
     public List<Order> getOrders() {
         return orderIRepository.readAll();
     }
@@ -49,12 +40,6 @@ public class CustomerService {
         return packageIRepository.readAll();
     }
 
-    public void deleteCustomer(Integer customerId) {
-        Customer customer = customerIRepository.get(customerId);
-        if (customer != null) {
-            customerIRepository.delete(customerId);
-        }
-    }
 
     public Integer getLastLoggedInCustomerId() {
         int maxId = 0;
@@ -89,7 +74,7 @@ public class CustomerService {
         }
 
         //orderIRepository.create(order);
-        order.updateTotalCost();
+        //order.updateTotalCost();
 
         customer.addDOrder(order);
         order.setCustomerID(customerId);
@@ -98,7 +83,7 @@ public class CustomerService {
         customerIRepository.update(customer);
 
         double totalCost = calculateAndUpdateOrderCost(orderID);
-        order.setTotalCost(totalCost);
+        order.setTotalCost(120);
 
         // Actualizează obiectul Order în baza de date după ce setezi costul total
         orderIRepository.update(order);
@@ -115,6 +100,7 @@ public class CustomerService {
         double totalCost = order.getPackages().stream()
                 .mapToDouble(Packages::getCost)
                 .sum();
+
         //order.setTotalCost(totalCost);
         //orderIRepository.update(order);
         return totalCost;
@@ -129,6 +115,19 @@ public class CustomerService {
                 orderIRepository.delete(orderID); // Delete the order from repository
                 customerIRepository.update(customer);
             }
+        }
+    }
+    public void deleteCustomer(Integer customerId) {
+        Customer customer = customerIRepository.get(customerId);
+        if (customer != null) {
+            // Șterge comenzile asociate clientului
+            List<Order> orders = getOrdersFromCustomers(customerId);
+            for (Order order : orders) {
+                orderIRepository.delete(order.getId());
+            }
+
+            // Șterge clientul
+            customerIRepository.delete(customerId);
         }
     }
 
