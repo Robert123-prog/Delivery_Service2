@@ -3,6 +3,7 @@ package controller;
 import model.Order;
 import service.CustomerService;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +44,7 @@ public class CustomerController {
      * @param /cost            total cost of the order
      * @param /status          current status of the order
      */
-    public void makeAnOrder(Integer customerId, Date orderDate, LocalDateTime deliveryDateTime, List<Integer> packageIds) {
+    public void makeAnOrder(Integer customerId, Date orderDate, LocalDateTime deliveryDateTime, List<Integer> packageIds) throws SQLException {
         Integer orderId = customerService.getNewOrderId();
         customerService.placeOrder(customerId, orderId, orderDate, deliveryDateTime, packageIds);
         System.out.println("Order with id " + orderId + " by customer with id " + customerId + " successfully");

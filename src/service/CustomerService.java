@@ -3,6 +3,7 @@ package service;
 import model.*;
 import repository.*;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Date;
@@ -23,9 +24,13 @@ public class CustomerService {
         this.packageIRepository = packageIRepository;
     }
 
-    public List<Order> getOrdersFromCustomers(Integer customerId) {
-        Customer customer = customerIRepository.get(customerId);
-        return customer.getOrders();
+    public List<Order> getOrdersFromCustomer(Integer customerId) {
+        // Folosind getAll() sau o metodă personalizată în funcție de implementare
+        List<Order> orders = orderIRepository.readAll();
+        // Filtrarea comenzilor pe baza customerId
+        return orders.stream()
+                .filter(order -> order.getCustomerID().equals(customerId))
+                .collect(Collectors.toList());
     }
 
     public List<Order> getOrders() {
@@ -61,7 +66,7 @@ public class CustomerService {
         return maxId;
     }
 
-    public void placeOrder(Integer customerId, Integer orderID, Date orderDate, LocalDateTime deliveryDateTime, List<Integer> packageIds) {
+    public void placeOrder(Integer customerId, Integer orderID, Date orderDate, LocalDateTime deliveryDateTime, List<Integer> packageIds) throws SQLException {
         Customer customer = customerIRepository.get(customerId);
         if (customer == null) {
             throw new IllegalArgumentException("Customer not found for ID: " + customerId);
@@ -70,23 +75,35 @@ public class CustomerService {
         String location = customer.getAddress();
         Order order = new Order(orderID, customerId, orderDate, deliveryDateTime);
         order.setLocation(location);
+        orderIRepository.create(order);
 
         for (Integer packageId : packageIds) {
             Packages packages = packageIRepository.get(packageId);
             if (packages != null) {
                 order.addPackage(packages);
+
+                // Inserare în tabelul many-to-many (orderPackages)
+                String insertOrderPackageSql = "INSERT INTO orderPackages (orderID, packageID) VALUES (?, ?)";
+                DbUtil.executeUpdate(insertOrderPackageSql, orderID, packageId);
             }
         }
+
+        //orderIRepository.create(order);
+        order.updateTotalCost();
 
         customer.addDOrder(order);
         order.setCustomerID(customerId);
 
-        orderIRepository.create(order);
+        //orderIRepository.update(order);
         customerIRepository.update(customer);
 
         double totalCost = calculateAndUpdateOrderCost(orderID);
-        order.setCost(totalCost);
+        order.setTotalCost(totalCost);
+
+        // Actualizează obiectul Order în baza de date după ce setezi costul total
+        orderIRepository.update(order);
     }
+
 
     /**
      * Calculates and updates the total cost of an order based on its packages
@@ -98,8 +115,8 @@ public class CustomerService {
         double totalCost = order.getPackages().stream()
                 .mapToDouble(Packages::getCost)
                 .sum();
-        order.setCost(totalCost);
-        orderIRepository.update(order);
+        //order.setTotalCost(totalCost);
+        //orderIRepository.update(order);
         return totalCost;
     }
 
@@ -107,7 +124,6 @@ public class CustomerService {
         Customer customer = customerIRepository.get(customerId);
         if (customer != null && customer.getOrders() != null) {
             Order order = orderIRepository.get(orderID);
-
             if (order != null && customer.getOrders().remove(order)) {
                 // Successfully removed order from customer's orders list
                 orderIRepository.delete(orderID); // Delete the order from repository
@@ -173,5 +189,14 @@ public class CustomerService {
             }
         }
         return maxId + 1;
+    }
+
+    public List<Order> getOrdersFromCustomers(Integer customerId) {
+        // Folosind getAll() sau o metodă personalizată în funcție de implementare
+        List<Order> orders = orderIRepository.readAll();
+        // Filtrarea comenzilor pe baza customerId
+        return orders.stream()
+                .filter(order -> order.getCustomerID().equals(customerId))
+                .collect(Collectors.toList());
     }
 }

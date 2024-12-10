@@ -53,7 +53,7 @@ public class DBRepository<T extends HasID> implements IRepository<T> {
             String updateValues = (String) obj.getClass().getMethod("getUpdateValues").invoke(obj);
             String query = "UPDATE " + tableName + " SET " + updateValues + " WHERE " + primaryKeyColumn + " = ?";
             try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setInt(1, obj.getId());
+                ps.setInt(1, (Integer) obj.getClass().getMethod("getId").invoke(obj));
                 ps.executeUpdate();
             }
         } catch (SQLException | ReflectiveOperationException e) {
@@ -100,4 +100,22 @@ public class DBRepository<T extends HasID> implements IRepository<T> {
         }
         return keys;
     }
+    public List<T> executeQuery(String sql, Object... params) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            for (int i = 0; i < params.length; i++) {
+                stmt.setObject(i + 1, params[i]);
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            List<T> resultList = new ArrayList<>();
+            while (rs.next()) {
+                resultList.add(rowMapper.mapRow(rs));
+            }
+            return resultList;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
 }

@@ -27,7 +27,7 @@ public class APP4 {
 
     private Scanner scanner;
 
-    public APP4(CustomerController customerController, EmployeeController employeeController, SellerController sellerController, DeliveryPersonController deliveryPersonController, UserController userController) {
+    public APP4(CustomerController customerController, EmployeeController employeeController, SellerController sellerController, DeliveryPersonController deliveryPersonController, UserController userController) throws SQLException {
         this.customerController = customerController;
         this.employeeController = employeeController;
         this.sellerController = sellerController;
@@ -41,7 +41,7 @@ public class APP4 {
      * Creates and manages the main user interface loop.
      * Displays the main menu and handles user input for navigation between different menus.
      */
-    private void createUI() {
+    private void createUI() throws SQLException {
         while (true) {
             System.out.println("Main Menu:");
             System.out.println("1. User");
@@ -236,7 +236,7 @@ public class APP4 {
      * Manages the customer menu interface.
      * Provides functionality for customer management and order processing.
      */
-    private void customerMenu() {
+    private void customerMenu() throws SQLException {
         while (true) {
             System.out.println("Customer Menu:");
             System.out.println("1. View All Customers");
@@ -689,14 +689,14 @@ public class APP4 {
     public static Object[] createDbServices() {
         try {
             Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
-
+            DbUtil dbUtil = new DbUtil(connection);
             // Creează și returnează instanțele de DbService
             RowMapper<Department> departmentsRowMapper = rs -> new Department(
                     rs.getInt("departmentid"),
                     rs.getString("name"),
                     rs.getString("task")
             );
-            DBRepository<Department> departmentDBRepository = new DBRepository<>(connection, "departments", departmentsRowMapper, "departmentid");
+            DBRepository<Department> departmentDBRepository = new DBRepository<>(dbUtil.getConnection(), "departments", departmentsRowMapper, "departmentid");
 
             RowMapper<Employee> employeeRowMapper = rs -> new Employee(
                     rs.getInt("employeeID"),
@@ -705,7 +705,7 @@ public class APP4 {
                     rs.getString("phone"),
                     rs.getString("license")
             );
-            DBRepository<Employee> employeeDBRepository = new DBRepository<>(connection, "employees", employeeRowMapper, "employeeID");
+            DBRepository<Employee> employeeDBRepository = new DBRepository<>(dbUtil.getConnection(), "employees", employeeRowMapper, "employeeID");
 
             RowMapper<Customer> customerRowMapper = rs -> new Customer(
                     rs.getInt("customerID"),
@@ -714,7 +714,7 @@ public class APP4 {
                     rs.getString("phone"),
                     rs.getString("email")
             );
-            DBRepository<Customer> customerDBRepository = new DBRepository<>(connection, "customers", customerRowMapper, "customerID");
+            DBRepository<Customer> customerDBRepository = new DBRepository<>(dbUtil.getConnection(), "customers", customerRowMapper, "customerID");
 
             RowMapper<Store> storeRowMapper = rs -> new Store(
                     rs.getInt("storeID"),
@@ -722,14 +722,14 @@ public class APP4 {
                     rs.getString("address"),
                     rs.getString("contact")
             );
-            DBRepository<Store> storeDBRepository = new DBRepository<>(connection, "stores", storeRowMapper, "storeID");
+            DBRepository<Store> storeDBRepository = new DBRepository<>(dbUtil.getConnection(), "stores", storeRowMapper, "storeID");
 
             RowMapper<Delivery_Person> deliveryPersonRowMapper = rs -> new Delivery_Person(
                     rs.getInt("deliveryPersonID"),
                     rs.getString("phone"),
                     rs.getString("name")
             );
-            DBRepository<Delivery_Person> deliveryPersonDBRepository = new DBRepository<>(connection, "delivery_persons", deliveryPersonRowMapper, "deliveryPersonID");
+            DBRepository<Delivery_Person> deliveryPersonDBRepository = new DBRepository<>(dbUtil.getConnection(), "delivery_persons", deliveryPersonRowMapper, "deliveryPersonID");
 
             RowMapper<Deposit> depositRowMapper = rs -> new Deposit(
                     rs.getInt("depositID"),
@@ -738,7 +738,7 @@ public class APP4 {
                     rs.getInt("storeID")
 
             );
-            DBRepository<Deposit> depositDBRepository = new DBRepository<>(connection, "deposits", depositRowMapper, "depositID");
+            DBRepository<Deposit> depositDBRepository = new DBRepository<>(dbUtil.getConnection(), "deposits", depositRowMapper, "depositID");
 
             RowMapper<Order> orderRowMapper = rs -> new Order(
                     rs.getInt("orderID"),
@@ -750,7 +750,7 @@ public class APP4 {
                     //rs.getInt("deliveryID"),
                     //rs.getString("location")
             );
-            DBRepository<Order> orderDBRepository = new DBRepository<>(connection, "orders", orderRowMapper, "orderID");
+            DBRepository<Order> orderDBRepository = new DBRepository<>(dbUtil.getConnection(), "orders", orderRowMapper, "orderID");
 
             RowMapper<Personal_Vehicle> personalVehicleRowMapper = rs -> new Personal_Vehicle(
                     rs.getInt("personalVehicleID"),
@@ -759,7 +759,7 @@ public class APP4 {
                     //rs.getInt("capacity"),
                     Transportation_Type.valueOf(rs.getString("transportation_type"))
             );
-            DBRepository<Personal_Vehicle> personalVehicleDBRepository = new DBRepository<>(connection, "personal_vehicles", personalVehicleRowMapper, "personalVehicleID");
+            DBRepository<Personal_Vehicle> personalVehicleDBRepository = new DBRepository<>(dbUtil.getConnection(), "personal_vehicles", personalVehicleRowMapper, "personalVehicleID");
 
             RowMapper<Packages> packagesRowMapper = rs -> new Packages(
                     rs.getInt("packageID"),
@@ -768,7 +768,7 @@ public class APP4 {
                     rs.getDouble("cost")
                     //rs.getInt("depositID")
             );
-            DBRepository<Packages> packagesDBRepository = new DBRepository<>(connection, "packages", packagesRowMapper, "packageID");
+            DBRepository<Packages> packagesDBRepository = new DBRepository<>(dbUtil.getConnection(), "packages", packagesRowMapper, "packageID");
 
             RowMapper<Delivery> deliveryRowMapper = rs -> new Delivery(
                     rs.getInt("deliveryID")
@@ -778,7 +778,7 @@ public class APP4 {
                     //rs.getString("transportation_type")
                     //rs.getString("location")
             );
-            DBRepository<Delivery> deliveryDBRepository = new DBRepository<>(connection, "deliveries", deliveryRowMapper, "deliveryID");
+            DBRepository<Delivery> deliveryDBRepository = new DBRepository<>(dbUtil.getConnection(), "deliveries", deliveryRowMapper, "deliveryID");
 
             CustomerService customerService = new CustomerService(customerDBRepository,orderDBRepository,deliveryDBRepository,packagesDBRepository);
             EmployeeService employeeService = new EmployeeService(employeeDBRepository,deliveryDBRepository,departmentDBRepository);
