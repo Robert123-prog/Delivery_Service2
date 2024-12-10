@@ -211,7 +211,7 @@ public class Delivery implements HasID {
      * @return A comma-separated string of column names.
      */
     public static String getColumns() {
-        return "deliveryID, deliveryPersonID, employeeID, orderID, transportationID, transportation_type, location";
+        return "deliveryID, location";
     }
 
     /**

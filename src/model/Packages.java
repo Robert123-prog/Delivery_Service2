@@ -151,10 +151,9 @@ public class Packages implements HasID {
      */
     public String getValues() {
         return String.format(
-                "%d, %.2f, %d, %.2f, '%s', %d",
+                "%d, %.2f, %.2f, '%s', %d",
                 packageID,
                 cost,
-                orderID,
                 weight,
                 dimensions,
                 depositId
@@ -168,9 +167,8 @@ public class Packages implements HasID {
      */
     public String getUpdateValues() {
         return String.format(
-                "cost = %.2f, orderID = %d, weight = %.2f, dimensions = '%s', depositId = %d",
+                "cost = %.2f, weight = %.2f, dimensions = '%s', depositId = %d",
                 cost,
-                orderID,
                 weight,
                 dimensions,
                 depositId
