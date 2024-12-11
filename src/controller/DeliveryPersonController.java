@@ -2,6 +2,7 @@ package controller;
 
 import exceptions.BusinessLogicException;
 import exceptions.EntityNotFound;
+import exceptions.ValidationException;
 import model.Delivery;
 import model.Delivery_Person;
 import model.Personal_Vehicle;
@@ -34,6 +35,10 @@ public class DeliveryPersonController {
      * @param license the license number of the delivery person
      */
     public void createDeliveryPerson(String name, String phone, String license) {
+        if (name.isEmpty() || phone.isEmpty() || license.isEmpty()){
+            throw new ValidationException("One or more of the required fields is empty");
+        }
+
         Integer deliveryPersonId = deliveryPersonService.getNewDeliveryPersonId();
         boolean verified = verifyDeliveryPerson(deliveryPersonId, license);
         System.out.println(verified);
@@ -57,16 +62,19 @@ public class DeliveryPersonController {
      */
 
     public void viewDeliveriesForDeliveryPerson() {
-        List<Delivery> deliveries = deliveryPersonService.getDeliveriesWithToBeShippedOrders();
+        try {
+            List<Delivery> deliveries = deliveryPersonService.getDeliveriesWithToBeShippedOrders();
 //        List<Delivery> deliveries = deliveryPersonService.getDelivery();
-        StringBuilder output = new StringBuilder("Deliveries suitable for Delivery Person to pick up:\n");
-        if (deliveries.isEmpty()) {
-            output.append("No deliveries available for 'to be shipped' orders.\n");
-        } else {
-            deliveries.forEach(delivery -> output.append(delivery.toString()).append("\n"));
+            StringBuilder output = new StringBuilder("Deliveries suitable for Delivery Person to pick up:\n");
+            if (deliveries.isEmpty()) {
+                output.append("No deliveries available for 'to be shipped' orders.\n");
+            } else {
+                deliveries.forEach(delivery -> output.append(delivery.toString()).append("\n"));
+            }
+            System.out.println(output);
+        }catch (BusinessLogicException e){
+            System.out.println(e.getMessage());
         }
-
-        System.out.println(output);
     }
 
     /**
@@ -86,24 +94,29 @@ public class DeliveryPersonController {
      * @param deliveryId       the ID of the delivery being picked up
      */
     public void pickDeliveryByPerson(Integer deliveryPersonId, Integer deliveryId) {
-            List<Delivery> deliveries = deliveryPersonService.getDelivery();
-            Delivery deliveryToBeAssigned = null;
+//            List<Delivery> deliveries = deliveryPersonService.getDelivery();
+//            Delivery deliveryToBeAssigned = null;
+//
+//            for (Delivery delivery: deliveries){
+//                if (delivery.getDeliveryID() == deliveryId){
+//                    deliveryToBeAssigned = delivery;
+//                }
+//            }
+//
+//            if (deliveryToBeAssigned != null) throw new EntityNotFound("No delivery found with ID " + deliveryId);
+//
+//            if (deliveryToBeAssigned.getEmployeeID() != null || deliveryToBeAssigned.getDeliveryPeronID() != null){
+//                throw new BusinessLogicException("The delivery is already assigned!");
+//            }
 
-            for (Delivery delivery: deliveries){
-                if (delivery.getDeliveryID() == deliveryId){
-                    deliveryToBeAssigned = delivery;
-                }
+            try {
+
+                deliveryPersonService.pickDeliveryToPerson(deliveryPersonId, deliveryId);
+                System.out.println("Picked delivery with id " + deliveryId + " by Person with id " + deliveryPersonId + " successfully");
+            }catch(BusinessLogicException e){
+                e.setMessage("No delivery found with ID " + deliveryId);
+                System.out.println(e.getMessage());
             }
-
-            if (deliveryToBeAssigned != null) throw new EntityNotFound("No delivery found with ID " + deliveryId);
-
-            if (deliveryToBeAssigned.getEmployeeID() != null || deliveryToBeAssigned.getDeliveryPeronID() != null){
-                throw new BusinessLogicException("The delivery is already assigned!");
-            }
-
-        deliveryPersonService.pickDeliveryToPerson(deliveryPersonId, deliveryId);
-        System.out.println("Picked delivery with id " + deliveryId + " by Person with id " + deliveryPersonId + " successfully");
-
         /*
         deliveryPersonService.pickDeliveryToPerson(deliveryPersonId, deliveryId);
         System.out.println("Picked delivery with id " + deliveryId + " by Person with id " + deliveryPersonId + " successfully");
@@ -119,53 +132,23 @@ public class DeliveryPersonController {
      */
 
     public void assignPersonalVehicle(Integer deliveryPersonId, Integer vehicleId) {
-        List<Delivery_Person> deliveryPeople = deliveryPersonService.getDeliveryPerson();
-        boolean existsDeliveryPerson = false;
-
-        for (Delivery_Person deliveryPerson: deliveryPeople){
-            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
-                existsDeliveryPerson = true;
-                break;
-            }
+        try {
+            deliveryPersonService.assignPersonalVehicle(deliveryPersonId, vehicleId);
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
         }
-
-        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
-
-        List<Personal_Vehicle> personalVehicles = deliveryPersonService.getPersonalVehicles();
-        Personal_Vehicle personalVehicleToBeAssigned = null;
-        boolean existsPersonalVehicle = false;
-
-        for (Personal_Vehicle personalVehicle: personalVehicles){
-            if (Objects.equals(personalVehicle.getId(), vehicleId)){
-                existsPersonalVehicle = true;
-                personalVehicleToBeAssigned = personalVehicle;
-                break;
-            }
-        }
-
-        if (!existsPersonalVehicle) throw new EntityNotFound("No personal vehicle found with ID " + deliveryPersonId);
-
-        if (personalVehicleToBeAssigned.getDeliveryPersonID() != null){
-            throw new BusinessLogicException("The desired personal vehicle is already taken!");
-        }
-
-        deliveryPersonService.assignPersonalVehicle(deliveryPersonId, vehicleId);
     }
 
     public List<Delivery> getDeliveriesForDeliveryPerson(Integer deliveryPersonId) {
-        List<Delivery_Person> deliveryPeople = deliveryPersonService.getDeliveryPerson();
-        boolean existsDeliveryPerson = false;
-
-        for (Delivery_Person deliveryPerson: deliveryPeople){
-            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
-                existsDeliveryPerson = true;
-                break;
-            }
+        try{
+            return deliveryPersonService.getDeliveriesForDeliveryPerson(deliveryPersonId);
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
+            return null;
+        }catch (BusinessLogicException e1){
+            System.out.println(e1.getMessage());
+            return null;
         }
-
-        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
-
-        return deliveryPersonService.getDeliveriesForDeliveryPerson(deliveryPersonId);
     }
 
     /**
