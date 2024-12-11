@@ -2,6 +2,7 @@ package service;
 
 import exceptions.BusinessLogicException;
 import exceptions.EntityNotFound;
+import exceptions.ValidationException;
 import model.*;
 import repository.IRepository;
 
@@ -59,10 +60,14 @@ public class DeliveryPersonService {
     public List<Delivery> getDeliveriesWithToBeShippedOrders() {
         List<Delivery> allDeliveries = deliveryIRepository.readAll();
 
-        return allDeliveries.stream()
+        List<Delivery> deliveriesWithToBeShipped = allDeliveries.stream()
                 .filter(delivery -> delivery.getOrders().stream()
                         .anyMatch(order -> "to be shipped".equalsIgnoreCase(order.getStatus())))
                 .collect(Collectors.toList());
+
+        if (deliveriesWithToBeShipped.isEmpty()) throw new BusinessLogicException("No deliveries with 'to be shipped' orders found");
+
+        return deliveriesWithToBeShipped;
     }
 
     public void pickDeliveryToPerson(Integer deliveryPersonId, Integer deliveryId) {
@@ -108,33 +113,12 @@ public class DeliveryPersonService {
      * @param personalVehicleId ID of the personal vehicle to assign
      */
     public void assignPersonalVehicle(Integer deliveryPersonId, Integer personalVehicleId){
-        List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
-        boolean existsDeliveryPerson = false;
-
-        for (Delivery_Person deliveryPerson: deliveryPeople){
-            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
-                existsDeliveryPerson = true;
-                break;
-            }
-        }
-
-        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
-
-        List<Personal_Vehicle> personalVehicles = personalVehicleIRepository.readAll();
-        boolean existsPersonalVehicle = false;
-
-        for (Personal_Vehicle personalVehicle: personalVehicles){
-            if (Objects.equals(personalVehicle.getId(), personalVehicleId)){
-                existsPersonalVehicle = true;
-                break;
-            }
-        }
-
-        if (!existsPersonalVehicle) throw new EntityNotFound("No personal vehicle found with ID " + personalVehicleId);
-
-
         Delivery_Person deliveryPerson = deliveryPersonIRepository.get(deliveryPersonId);
+        if (deliveryPerson == null) throw new EntityNotFound("No delivery person found for ID " + deliveryPersonId);
+
         Personal_Vehicle personalVehicle = personalVehicleIRepository.get(personalVehicleId);
+        if (personalVehicle == null) throw new EntityNotFound("No personal vehicle found for ID " + personalVehicleId);
+
 
         //deliveryPerson.setPersonalVehicleId(personalVehicleId);
         personalVehicle.setDeliveryPersonID(deliveryPersonId);
@@ -148,23 +132,11 @@ public class DeliveryPersonService {
     }
 
     public List<Delivery> getDeliveriesForDeliveryPerson(Integer deliveryPersonId) {
-        List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
-        boolean existsDeliveryPerson = false;
-
-        for (Delivery_Person deliveryPerson: deliveryPeople){
-            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
-                existsDeliveryPerson = true;
-                break;
-            }
-        }
-
-        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
-
         Delivery_Person deliveryPerson = deliveryPersonIRepository.get(deliveryPersonId);
+        if (deliveryPerson == null) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
 
         List<Delivery> deliveries = deliveryPerson.getDeliveries();
-
-        if (deliveries.isEmpty()) throw new BusinessLogicException("The delivery person has no related deliveries");
+        if (deliveries == null) throw new BusinessLogicException("The delivery person has no related deliveries");
 
         return deliveries;
     }

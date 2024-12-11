@@ -53,19 +53,10 @@ public class EmployeeService {
         Employee employee = new Employee(Id, departmentId, name, phone, license);
         employeeIRepository.create(employee);
 
-        List<Department> departments = departmentIRepository.readAll();
-        boolean existsDepartment = false;
-
-        for (Department department : departments) {
-            if (department.getDepartmentID() == departmentId) {
-                existsDepartment = true;
-                break;
-            }
-        }
-
-        if (!existsDepartment) throw new EntityNotFound("No department found with ID " + departmentId);
-
         Department department = departmentIRepository.get(departmentId);
+
+        if (department == null) throw new EntityNotFound("No department found for ID " + departmentId);
+
         department.addEmployee(employee);
     }
 
@@ -87,22 +78,13 @@ public class EmployeeService {
      * @throws BusinessLogicException if the employee has no related deliveries.
      */
     public List<Delivery> getDeliveriesForEmployee(Integer employeeId) {
-        List<Employee> employees = employeeIRepository.readAll();
-        boolean existsEmployee = false;
-
-        for (Employee employee : employees) {
-            if (employee.getEmployeeID() == employeeId) {
-                existsEmployee = true;
-                break;
-            }
-        }
-
-        if (!existsEmployee) throw new EntityNotFound("No employee found with ID " + employeeId);
-
         Employee employee = employeeIRepository.get(employeeId);
+
+        if (employee == null) throw new EntityNotFound("No employee found with ID " + employeeId);
+
         List<Delivery> deliveries = employee.getDeliveries();
 
-        if (deliveries.isEmpty()) throw new BusinessLogicException("The selected employee has no related deliveries");
+        if (deliveries == null) throw new BusinessLogicException("The selected employee has no related deliveries");
 
         return deliveries;
     }
@@ -180,32 +162,11 @@ public class EmployeeService {
      * @throws EntityNotFound if the employee or delivery does not exist.
      */
     public void pickDelivery(Integer employeeId, Integer deliveryId) {
-        List<Employee> employees = employeeIRepository.readAll();
-        boolean existsEmployee = false;
-
-        for (Employee employee : employees) {
-            if (employee.getEmployeeID() == employeeId) {
-                existsEmployee = true;
-                break;
-            }
-        }
-
-        if (!existsEmployee) throw new EntityNotFound("No employee found with ID " + employeeId);
-
-        List<Delivery> deliveries = deliveryIRepository.readAll();
-        boolean existsDelivery = false;
-
-        for (Delivery delivery : deliveries) {
-            if (delivery.getEmployeeID() == deliveryId) {
-                existsDelivery = true;
-                break;
-            }
-        }
-
-        if (!existsDelivery) throw new EntityNotFound("No delivery found with ID " + deliveryId);
-
         Delivery delivery = deliveryIRepository.get(deliveryId);
+        if (delivery == null) throw new EntityNotFound("No delivery with ID " + deliveryId);
+
         Employee employee = employeeIRepository.get(employeeId);
+        if (employee == null) throw new EntityNotFound("No employee with ID " + employeeId);
 
         employee.addDelivery(delivery);
         delivery.setEmployeeID(employeeId);

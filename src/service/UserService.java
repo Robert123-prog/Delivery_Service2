@@ -1,5 +1,8 @@
 package service;
 
+import exceptions.BusinessLogicException;
+import exceptions.DatabaseException;
+import exceptions.EntityNotFound;
 import model.*;
 import repository.IRepository;
 
@@ -58,9 +61,9 @@ public class UserService {
      */
     public void deleteCustomer(Integer customerId) {
         Customer customer = customerIRepository.get(customerId);
-        if (customer != null) {
-            customerIRepository.delete(customerId);
-        }
+        if (customer == null) throw new EntityNotFound("No customer was found with ID " + customerId);
+
+        customerIRepository.delete(customerId);
     }
 
     /**
@@ -79,13 +82,13 @@ public class UserService {
      */
     public void unenrollEmployee(Integer employeeId) {
         Employee employee = employeeIRepository.get(employeeId);
-        if (employee != null) {
-            Department department = departmentIRepository.get(employee.getDepartmentID());
-            if (department != null) {
-                department.removeEmployee(employee);
-            }
-            employeeIRepository.delete(employeeId);
-        }
+        if (employee == null) throw new EntityNotFound("No employee was found with ID " + employeeId);
+
+        Department department = departmentIRepository.get(employee.getDepartmentID());
+        if (department == null) throw new BusinessLogicException("The employee is not assigned to any department");
+
+        department.removeEmployee(employee);
+        employeeIRepository.delete(employeeId);
     }
 
     /**
@@ -103,6 +106,9 @@ public class UserService {
      * @param deliveryPersonId ID of the delivery person to delete
      */
     public void unenrollDeliveryPerson(Integer deliveryPersonId) {
+        Delivery_Person deliveryPerson = deliveryPersonIRepository.get(deliveryPersonId);
+        if (deliveryPerson == null) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
+
         deliveryPersonIRepository.delete(deliveryPersonId);
     }
 }

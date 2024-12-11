@@ -1,4 +1,5 @@
 import controller.*;
+import exceptions.ValidationException;
 import model.*;
 import repository.*;
 import service.*;
@@ -160,23 +161,31 @@ public class APP4 {
                     sellerController.viewAllStores();
                     break;
                 case 2:
-                    System.out.print("Enter Store Name: ");
-                    String storeName = scanner.nextLine();
-                    System.out.print("Enter Store Address: ");
-                    String storeAddress = scanner.nextLine();
-                    System.out.print("Enter Store Contact: ");
-                    String storeContact = scanner.nextLine();
-                    sellerController.createStore(storeName, storeAddress, storeContact);
+                    try {
+                        System.out.print("Enter Store Name: ");
+                        String storeName = scanner.nextLine();
+                        System.out.print("Enter Store Address: ");
+                        String storeAddress = scanner.nextLine();
+                        System.out.print("Enter Store Contact: ");
+                        String storeContact = scanner.nextLine();
+                        sellerController.createStore(storeName, storeAddress, storeContact);
+                    }catch (ValidationException e){
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case 3:
-                    System.out.print("Enter Store ID: ");
-                    int storeId = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
-                    System.out.print("Enter Deposit Address: ");
-                    String depositAddress = scanner.nextLine();
-                    System.out.print("Enter Deposit Status: ");
-                    String depositStatus = scanner.nextLine();
-                    sellerController.registerDeposit(storeId, depositAddress, depositStatus);
+                    try {
+                        System.out.print("Enter Store ID: ");
+                        int storeId = scanner.nextInt();
+                        scanner.nextLine(); // Consume newline
+                        System.out.print("Enter Deposit Address: ");
+                        String depositAddress = scanner.nextLine();
+                        System.out.print("Enter Deposit Status: ");
+                        String depositStatus = scanner.nextLine();
+                        sellerController.registerDeposit(storeId, depositAddress, depositStatus);
+                    }catch (ValidationException e){
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case 4:
                     sellerController.viewAllDeposits();
@@ -197,15 +206,19 @@ public class APP4 {
                     sellerController.deleteDeposit(storeIdForDeposit, depositId);
                     break;
                 case 7:
-                    System.out.print("Enter Package Cost: ");
-                    double cost = scanner.nextDouble();
-                    scanner.nextLine(); // Consume newline
-                    System.out.print("Enter Package Weight: ");
-                    double weight = scanner.nextDouble();
-                    scanner.nextLine(); // Consume newline
-                    System.out.print("Enter Package Dimensions: ");
-                    String dimensions = scanner.nextLine();
-                    sellerController.createPackage(cost, weight, dimensions);
+                    try {
+                        System.out.print("Enter Package Cost: ");
+                        double cost = scanner.nextDouble();
+                        scanner.nextLine(); // Consume newline
+                        System.out.print("Enter Package Weight: ");
+                        double weight = scanner.nextDouble();
+                        scanner.nextLine(); // Consume newline
+                        System.out.print("Enter Package Dimensions: ");
+                        String dimensions = scanner.nextLine();
+                        sellerController.createPackage(cost, weight, dimensions);
+                    }catch (ValidationException e){
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case 8:
                     sellerController.viewAllPackages();
@@ -221,9 +234,13 @@ public class APP4 {
                     sellerController.viewAllPackages();
                     break;
                 case 10:
-                    System.out.println("Enter a location for a Delivery to be created:");
-                    String location = scanner.nextLine();
-                    sellerController.createDelivery(location);
+                    try {
+                        System.out.println("Enter a location for a Delivery to be created:");
+                        String location = scanner.nextLine();
+                        sellerController.createDelivery(location);
+                    }catch (ValidationException e){
+                        System.out.println(e.getMessage());
+                    }
                 case 11:
                     return;
                 default:
@@ -257,15 +274,24 @@ public class APP4 {
                     customerController.viewAllCustomers();
                     break;
                 case 2:
+                    try{
                     System.out.print("Enter Name: ");
                     String name = scanner.nextLine();
+
                     System.out.print("Enter Address: ");
                     String address = scanner.nextLine();
+
                     System.out.print("Enter Phone: ");
                     String phone = scanner.nextLine();
+
                     System.out.print("Enter Email: ");
                     String email = scanner.nextLine();
+
                     customerController.createLoggedInCustomer(name, address, phone, email);
+                    } catch (ValidationException e) {
+                        e.setMessage("Invalid input: " + e.getMessage()); // Add context to the exception
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case 3:
                     System.out.print("Enter customer ID: ");
@@ -275,7 +301,6 @@ public class APP4 {
                     System.out.print("Enter order date (yyyy-mm-dd): ");
                     String orderDateString = scanner.nextLine();
                     Date orderDate = Date.valueOf(orderDateString);
-
 
                     System.out.println("Delivery Date and Time: ");
                     System.out.println("=======================================================");
@@ -401,6 +426,13 @@ public class APP4 {
                     String phone = scanner.nextLine();
                     System.out.print("Enter License: ");
                     String license = scanner.nextLine();
+
+                    //TODO
+                    /*
+                    org.postgresql.util.PSQLException: ERROR: column "departmentid" does not exist
+                    Hint: Perhaps you meant to reference the column "departments.departmentID".
+                       Position: 33
+                     */
                     employeeController.createEmployee(departmentId, name, phone, license);
                     break;
                 case 3:
@@ -473,13 +505,17 @@ public class APP4 {
                     deliveryPersonController.viewAllDeliveries();
                     break;
                 case 2:
-                    System.out.print("Enter Name: ");
-                    String name = scanner.nextLine();
-                    System.out.print("Enter Phone: ");
-                    String phone = scanner.nextLine();
-                    System.out.print("Enter License: ");
-                    String license = scanner.nextLine();
-                    deliveryPersonController.createDeliveryPerson(name, phone, license);
+                    try {
+                        System.out.print("Enter Name: ");
+                        String name = scanner.nextLine();
+                        System.out.print("Enter Phone: ");
+                        String phone = scanner.nextLine();
+                        System.out.print("Enter License: ");
+                        String license = scanner.nextLine();
+                        deliveryPersonController.createDeliveryPerson(name, phone, license);
+                    }catch (ValidationException e){
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case 3:
                     System.out.print("Enter Delivery Person ID: ");

@@ -1,6 +1,9 @@
 package tests;
 
 import controller.SellerController;
+import exceptions.BusinessLogicException;
+import exceptions.EntityNotFound;
+import exceptions.ValidationException;
 import model.*;
 import org.junit.jupiter.api.Test;
 import repository.IRepository;
@@ -45,7 +48,6 @@ public class DatabaseTest {
         Store fetchedStore = storeIRepository.get(1);
         assertNotNull(fetchedStore);
         assertEquals("Str. Posada", fetchedStore.getAddress());
-        System.out.println(fetchedStore);
 
         // Test update
         fetchedStore.setAddress("Calea Manastur");
@@ -70,7 +72,6 @@ public class DatabaseTest {
 
         Packages fetchedPackage = packageIRepository.get(1);
         assertNotNull(fetchedPackage);
-        System.out.println(fetchedPackage);
 
         //Test update
         fetchedPackage.setCost(200.5);
@@ -96,7 +97,7 @@ public class DatabaseTest {
 
         Order fetchedOrder = orderIRepository.get(1);
         assertNotNull(fetchedOrder);
-        System.out.println(fetchedOrder);
+
 
         //Test update
         fetchedOrder.setLocation("Cluj");
@@ -121,7 +122,7 @@ public class DatabaseTest {
 
         Customer fetchedCustomer = customerIRepository.get(1);
         assertNotNull(fetchedCustomer);
-        System.out.println(fetchedCustomer);
+
 
         //Test update
         fetchedCustomer.setAddress("Cluj");
@@ -145,7 +146,7 @@ public class DatabaseTest {
 
         Department fetchedDepartment = departmentIRepository.get(1);
         assertNotNull(fetchedDepartment);
-        System.out.println(fetchedDepartment);
+
 
         //Test update
         fetchedDepartment.setName("Full-Stuck Development");
@@ -169,7 +170,6 @@ public class DatabaseTest {
 
         Employee fetchedEmployee = employeeIRepository.get(1);
         assertNotNull(fetchedEmployee);
-        System.out.println(fetchedEmployee);
 
         //Test update
         fetchedEmployee.setLicense("C");
@@ -194,7 +194,7 @@ public class DatabaseTest {
 
         Delivery fetchedDelivery = deliveryIRepository.get(1);
         assertNotNull(fetchedDelivery);
-        System.out.println(fetchedDelivery);
+
 
         //Test update
         fetchedDelivery.setLocation("Cluj");
@@ -218,7 +218,7 @@ public class DatabaseTest {
 
         Deposit fetchedDeposit = depositIRepository.get(1);
         assertNotNull(fetchedDeposit);
-        System.out.println(fetchedDeposit);
+
 
         //Test update
         fetchedDeposit.setStatus("Empty");
@@ -242,7 +242,7 @@ public class DatabaseTest {
 
         Delivery_Person fetchedDeliveryPerson = deliveryPersonIRepository.get(1);
         assertNotNull(fetchedDeliveryPerson);
-        System.out.println(fetchedDeliveryPerson);
+
 
         //Test update
         fetchedDeliveryPerson.setPhone("987654321");
@@ -266,7 +266,7 @@ public class DatabaseTest {
 
         Personal_Vehicle fetchedPersonalVehicle = personalVehicleIRepository.get(1);
         assertNotNull(fetchedPersonalVehicle);
-        System.out.println(fetchedPersonalVehicle);
+
 
         //Test update
         fetchedPersonalVehicle.setExtraFee(10);
@@ -305,7 +305,32 @@ public class DatabaseTest {
 
         Order fetchedOrder = orderIRepository.get(orderId);
         assertNotNull(fetchedOrder);
-        System.out.println(fetchedOrder);
+    }
+
+    @Test
+    public void testFailedPlaceOrder(){
+        //use an invalid customer id (negative, 0, or a customer id that does not exist)
+        Integer customerId = 0;
+        Integer orderId = 1;
+        Date orderDate = new Date(2024 - 12 - 12);
+        LocalDateTime deliveryDateTime = LocalDateTime.of(2024, 12, 12, 12, 0);
+        List<Integer> packageIds = new ArrayList<>();
+
+        Packages packages1 = new Packages(1, 11.1, "2x2x2", 100.2);
+        Packages packages2 = new Packages(2, 21.1, "10x3x2", 150.2);
+
+        packageIds.add(packages1.getId());
+        packageIds.add(packages2.getId());
+        packageIRepository.create(packages1);
+        packageIRepository.create(packages2);
+
+        Exception exception = assertThrows(
+                EntityNotFound.class,
+                () -> customerService.placeOrder(customerId, orderId, orderDate, deliveryDateTime, packageIds),
+                "Expected placeOrder to throw ValidationException"
+        );
+
+        assertEquals("Customer not found for ID " + customerId, exception.getMessage());
     }
 
     @Test
@@ -327,12 +352,26 @@ public class DatabaseTest {
         assertNull(refetchedStore);
     }
 
-    //TODO FIX
+    @Test
+    public void testFailedRemoveStore(){
+        //use an invalid store id (negative, 0, or a store id that does not exist)
+        Integer storeId = 0;
+
+        Exception exception = assertThrows(
+                EntityNotFound.class,
+                () -> sellerService.removeStore(storeId),
+                "Expected removeStore to throw ValidationException"
+        );
+
+        assertEquals("No store found with ID " + storeId, exception.getMessage());
+    }
+
     @Test
     public void testGetDeliveriesWithToBeShippedOrders(){
-        Customer customer1 = new Customer(1 ,"Robert", "Manastur", "123456789", "robert@mail.com");
-        Customer customer2 = new Customer(2 ,"Alex", "Gheorgheni", "987654321", "alex@mail.com");
-        Customer customer3 = new Customer(3 ,"Stefan", "Gruia", "567891234", "stefan@mail.com");
+        Customer customer1 = new Customer(1, "Robert", "Manastur", "123456789", "robert@mail.com");
+        Customer customer2 = new Customer(2, "Alex", "Gheorgheni", "987654321", "alex@mail.com");
+        Customer customer3 = new Customer(3, "Stefan", "Gruia", "567891234", "stefan@mail.com");
+
         customerIRepository.create(customer1);
         customerIRepository.create(customer2);
         customerIRepository.create(customer3);
@@ -343,10 +382,6 @@ public class DatabaseTest {
         Order order4 = new Order(4, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
         Order order5 = new Order(5, 2, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
         Order order6 = new Order(6, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-
-        customerIRepository.update(customer1);
-        customerIRepository.update(customer2);
-        customerIRepository.update(customer3);
 
         order1.setStatus("to be shipped");
         order2.setStatus("processing");
@@ -361,6 +396,7 @@ public class DatabaseTest {
         order4.setLocation("Cluj");
         order5.setLocation("Sibiu");
         order6.setLocation("Zalau");
+
         orderIRepository.create(order1);
         orderIRepository.create(order2);
         orderIRepository.create(order3);
@@ -368,12 +404,97 @@ public class DatabaseTest {
         orderIRepository.create(order5);
         orderIRepository.create(order6);
 
-        Delivery delivery = new Delivery(1);
-        sellerController.createDelivery("Cluj");
+        Delivery delivery1 = new Delivery(1); // includes order1, order2, and order3
+        Delivery delivery2 = new Delivery(2); // includes order4 and order5
+        Delivery delivery3 = new Delivery(3); // includes order6
 
-        List<Order> orders = new ArrayList<>();
+        delivery1.addOrder(order1);
+        delivery1.addOrder(order2);
+        delivery1.addOrder(order3);
 
+        delivery2.addOrder(order4);
+        delivery2.addOrder(order5);
 
+        delivery3.addOrder(order6);
+
+        deliveryIRepository.create(delivery1);
+        deliveryIRepository.create(delivery2);
+        deliveryIRepository.create(delivery3);
+
+        List<Delivery> deliveriesWithToBeShipped = deliveryPersonService.getDeliveriesWithToBeShippedOrders();
+
+        assertNotNull(deliveriesWithToBeShipped);
+        assertEquals(2, deliveriesWithToBeShipped.size()); // only delivery1 and delivery2 should be returned
+
+        assertTrue(deliveriesWithToBeShipped.get(0).getOrders().stream()
+                .anyMatch(order -> "to be shipped".equalsIgnoreCase(order.getStatus())));
+
+        assertTrue(deliveriesWithToBeShipped.get(1).getOrders().stream()
+                .anyMatch(order -> "to be shipped".equalsIgnoreCase(order.getStatus())));
+    }
+
+    @Test
+    public void testFailedGetDeliveriesWithToBeShippedOrders(){
+        Customer customer1 = new Customer(1, "Robert", "Manastur", "123456789", "robert@mail.com");
+        Customer customer2 = new Customer(2, "Alex", "Gheorgheni", "987654321", "alex@mail.com");
+        Customer customer3 = new Customer(3, "Stefan", "Gruia", "567891234", "stefan@mail.com");
+
+        customerIRepository.create(customer1);
+        customerIRepository.create(customer2);
+        customerIRepository.create(customer3);
+
+        Order order1 = new Order(1, 1, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order2 = new Order(2, 1, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order3 = new Order(3, 2, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order4 = new Order(4, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order5 = new Order(5, 2, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order6 = new Order(6, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+
+        order1.setStatus("processing");
+        order2.setStatus("processing");
+        order3.setStatus("processing");
+        order4.setStatus("processing");
+        order5.setStatus("processing");
+        order6.setStatus("processing");
+
+        order1.setLocation("Cluj");
+        order2.setLocation("Cluj");
+        order3.setLocation("Sibiu");
+        order4.setLocation("Cluj");
+        order5.setLocation("Sibiu");
+        order6.setLocation("Zalau");
+
+        orderIRepository.create(order1);
+        orderIRepository.create(order2);
+        orderIRepository.create(order3);
+        orderIRepository.create(order4);
+        orderIRepository.create(order5);
+        orderIRepository.create(order6);
+
+        Delivery delivery1 = new Delivery(1); //includes order1, order2, and order3
+        Delivery delivery2 = new Delivery(2); //includes order4 and order5
+        Delivery delivery3 = new Delivery(3); //includes order6
+
+        delivery1.addOrder(order1);
+        delivery1.addOrder(order2);
+        delivery1.addOrder(order3);
+
+        delivery2.addOrder(order4);
+        delivery2.addOrder(order5);
+
+        delivery3.addOrder(order6);
+
+        deliveryIRepository.create(delivery1);
+        deliveryIRepository.create(delivery2);
+        deliveryIRepository.create(delivery3);
+
+        Exception exception = assertThrows(
+                BusinessLogicException.class,
+                () -> deliveryPersonService.getDeliveriesWithToBeShippedOrders(),
+                "Expected getDeliveriesWithToBeShippedOrders to throw BusinessLogicException"
+        );
+
+        assertEquals("No deliveries with 'to be shipped' orders found", exception.getMessage());
     }
 
     @Test
@@ -397,6 +518,19 @@ public class DatabaseTest {
         double expectedTotalCost = packages1.getCost() + packages2.getCost() + packages3.getCost();
         double actualTotalCost = customerService.calculateAndUpdateOrderCost(order.getId());
         assertEquals(expectedTotalCost, actualTotalCost);
+    }
+
+    @Test
+    public void testFailedCalculateAndUpdateOrderCost(){
+        //use an invalid store id (negative, 0, or a store id that does not exist)
+        Integer orderId = 0;
+
+        Exception exception = assertThrows(
+                EntityNotFound.class,
+                () -> customerService.calculateAndUpdateOrderCost(orderId),
+                "Expected calculateAndUpdateOrderCost to throw ValidationException"
+        );
+        assertEquals("No order found with ID " + orderId, exception.getMessage());
     }
 
     @Test
@@ -448,5 +582,50 @@ public class DatabaseTest {
 
         List<Order> actualOrdersForCluj = sellerService.filterDeliveriesByLocation(location);
         assertEquals(expectedOrdersForCluj, actualOrdersForCluj);
+    }
+
+    @Test
+    public void testFailedFilterDeliveriesByLocation(){
+        Customer customer1 = new Customer(1 ,"Robert", "Manastur", "123456789", "robert@mail.com");
+        Customer customer2 = new Customer(2 ,"Alex", "Gheorgheni", "987654321", "alex@mail.com");
+        Customer customer3 = new Customer(3 ,"Stefan", "Gruia", "567891234", "stefan@mail.com");
+        customerIRepository.create(customer1);
+        customerIRepository.create(customer2);
+        customerIRepository.create(customer3);
+
+        Order order1 = new Order(1, 1, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order2 = new Order(2, 1, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order3 = new Order(3, 2, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order4 = new Order(4, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order5 = new Order(5, 2, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order6 = new Order(6, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+
+        customerIRepository.update(customer1);
+        customerIRepository.update(customer2);
+        customerIRepository.update(customer3);
+
+        order1.setStatus("to be shipped");
+        order2.setStatus("processing");
+        order3.setStatus("to be shipped");
+        order4.setStatus("to be shipped");
+        order5.setStatus("processing");
+        order6.setStatus("processing");
+
+        //DO NOT SET ANY LOCATION ON THE ORDERS IN ORDER FOR THE EXCEPTION TO BE THROWN
+        orderIRepository.create(order1);
+        orderIRepository.create(order2);
+        orderIRepository.create(order3);
+        orderIRepository.create(order4);
+        orderIRepository.create(order5);
+        orderIRepository.create(order6);
+
+        //location cluj set randomly -> could be any
+        Exception exception = assertThrows(
+                BusinessLogicException.class,
+                () -> sellerService.filterDeliveriesByLocation("Cluj"),
+                "Expected filterDeliveriesByLocation to throw ValidationException"
+        );
+
+        assertEquals("There are no locations set on the orders", exception.getMessage());
     }
 }

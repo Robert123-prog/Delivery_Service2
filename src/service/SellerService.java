@@ -3,6 +3,7 @@
  */
 package service;
 
+import exceptions.BusinessLogicException;
 import exceptions.EntityNotFound;
 import model.*;
 import repository.IRepository;
@@ -100,22 +101,12 @@ public class SellerService {
      * @throws EntityNotFound if the specified store ID does not exist.
      */
     public void registerDeposit(Integer depositId, Integer storeId, String address, String status) {
-        List<Store> stores = storeIRepository.readAll();
-        boolean existsStore = false;
-
-        for (Store store : stores) {
-            if (store.getStoreID() == storeId) {
-                existsStore = true;
-                break;
-            }
-        }
-
-        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
+        Store store = storeIRepository.get(storeId);
+        if (store == null) throw new EntityNotFound("No store found with ID " + storeId);
 
         Deposit newDeposit = new Deposit(depositId, address, status, storeId);
         depositIRepository.create(newDeposit);
 
-        Store store = storeIRepository.get(storeId);
         store.addDeposit(newDeposit);
         storeIRepository.update(store);
     }
@@ -136,28 +127,19 @@ public class SellerService {
      * @throws EntityNotFound if the specified store ID does not exist.
      */
     public void removeStore(Integer storeId) {
-        List<Store> stores = storeIRepository.readAll();
-        boolean existsStore = false;
-
-        for (Store store : stores) {
-            if (store.getStoreID() == storeId) {
-                existsStore = true;
-                break;
-            }
-        }
-
-        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
-
         Store store = storeIRepository.get(storeId);
+
+        if (store == null) throw new EntityNotFound("No store found with ID " + storeId);
+
         List<Deposit> deposits = store.getDeposits();
+        if (deposits == null) throw new BusinessLogicException("The store has no related deposits");
 
         for (Deposit deposit : deposits) {
-            deposit.setStoreID(0); // Null not supported by fromCsv method.
+            deposit.setStoreID(0); // Null not supported by fromCsv method
             depositIRepository.update(deposit);
         }
 
         storeIRepository.delete(storeId);
-
     }
 
     /**
@@ -168,30 +150,9 @@ public class SellerService {
      * @throws EntityNotFound if the specified store or deposit ID does not exist.
      */
     public void removeDeposit(Integer storeId, Integer depositId) {
-        List<Store> stores = storeIRepository.readAll();
-        boolean existsStore = false;
-
-        for (Store store : stores) {
-            if (store.getStoreID() == storeId) {
-                existsStore = true;
-                break;
-            }
-        }
-
-        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
-
-        List<Deposit> deposits = depositIRepository.readAll();
-        boolean existsDeposit = false;
-
-        for (Deposit deposit : deposits) {
-            if (Objects.equals(deposit.getDepositID(), depositId)) {
-                existsDeposit = true;
-                break;
-            }
-        }
-        if (!existsDeposit) throw new EntityNotFound("No deposit found with ID " + depositId);
-
         Store store = storeIRepository.get(storeId);
+        if (store == null) throw new EntityNotFound("No store found with ID " + storeId);
+
         store.getDeposits().removeIf(deposit -> Objects.equals(deposit.getDepositID(), depositId));
         depositIRepository.delete(depositId);
         storeIRepository.update(store);
@@ -241,17 +202,8 @@ public class SellerService {
      * @throws EntityNotFound if the specified package ID does not exist.
      */
     public void removePackage(Integer packageId) {
-        List<Packages> packages = packageIRepository.readAll();
-        boolean existsPackage = false;
-
-        for (Packages packages1 : packages) {
-            if (Objects.equals(packages1.getPackageID(), packageId)) {
-                existsPackage = true;
-                break;
-            }
-        }
-        if (!existsPackage) throw new EntityNotFound("No package found with ID " + packageId);
-
+        Packages packages = packageIRepository.get(packageId);
+        if (packages == null) throw new EntityNotFound("No package found for ID " + packageId);
         packageIRepository.delete(packageId);
     }
 
@@ -270,6 +222,9 @@ public class SellerService {
                 filteredOrders.add(order);
             }
         }
+
+        if (filteredOrders.isEmpty()) throw new BusinessLogicException("There are no locations set on the orders");
+
         return filteredOrders;
     }
 

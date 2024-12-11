@@ -2,6 +2,7 @@ package controller;
 
 import exceptions.BusinessLogicException;
 import exceptions.EntityNotFound;
+import exceptions.ValidationException;
 import model.*;
 import service.SellerService;
 
@@ -30,6 +31,10 @@ public class SellerController {
      * @param contact the contact information for the store
      */
     public void createStore(String name, String address, String contact) {
+        if (name.isEmpty() || address.isEmpty() || contact.isEmpty()){
+            throw new ValidationException("One or more required fields is empty");
+        }
+
         Integer id = sellerService.getNewStoreId();
         sellerService.registerStore(id, name, address, contact);
         System.out.println("Registered store: " + name);
@@ -43,21 +48,16 @@ public class SellerController {
      * @param depositStatus  the status of the deposit
      */
     public void registerDeposit(Integer storeId, String depositAddress, String depositStatus) {
-        List<Store> stores = sellerService.getStores();
-        boolean existsStore = false;
-
-        for (Store store: stores){
-            if (store.getStoreID() == storeId){
-                existsStore = true;
-                break;
-            }
+        if (depositAddress.isEmpty() || depositStatus.isEmpty()){
+            throw new ValidationException("One or more required fields is missing");
         }
-
-        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
-
-        Integer depositId = sellerService.getNewDepositId();
-        sellerService.registerDeposit(depositId, storeId, depositAddress, depositStatus);
-        System.out.println("Registered deposit " + depositId + " to store " + storeId);
+        try {
+            Integer depositId = sellerService.getNewDepositId();
+            sellerService.registerDeposit(depositId, storeId, depositAddress, depositStatus);
+            System.out.println("Registered deposit " + depositId + " to store " + storeId);
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -75,21 +75,14 @@ public class SellerController {
      * @param storeId the ID of the store to delete
      */
     public void deleteStore(Integer storeId) {
-        List<Store> stores = sellerService.getStores();
-        boolean existsStore = false;
-
-        for (Store store: stores){
-            if (store.getStoreID() == storeId){
-                existsStore = true;
-                break;
-            }
+        try {
+            sellerService.removeStore(storeId);
+            System.out.println("Removed store " + storeId);
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
+        }catch (BusinessLogicException e1){
+            System.out.println(e1.getMessage());
         }
-
-        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
-
-
-        sellerService.removeStore(storeId);
-        System.out.println("Removed store " + storeId);
     }
 
     /**
@@ -99,38 +92,12 @@ public class SellerController {
      * @param depositId the ID of the deposit to delete
      */
     public void deleteDeposit(Integer storeId, Integer depositId) {
-        List<Store> stores = sellerService.getStores();
-        boolean existsStore = false;
-
-        for (Store store: stores){
-            if (store.getStoreID() == storeId){
-                existsStore = true;
-                break;
-            }
+        try {
+            sellerService.removeDeposit(storeId, depositId);
+            System.out.println("Removed deposit " + depositId + " from store " + storeId);
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
         }
-
-        if (!existsStore) throw new EntityNotFound("No store found with ID " + storeId);
-
-        List<Deposit> deposits = sellerService.getDeposits();
-        Deposit depositAssignedToStore = null;
-        boolean existsDeposit = false;
-
-        for (Deposit deposit: deposits){
-            if (Objects.equals(deposit.getDepositID(), depositId)){
-                existsDeposit = true;
-                depositAssignedToStore = deposit;
-                break;
-            }
-        }
-
-        if (!existsDeposit) throw new EntityNotFound("No deposit found with ID " + depositId);
-
-        if (depositAssignedToStore.getStoreID() == null){
-            throw new BusinessLogicException("The desired deposit is not assigned to the desired store!");
-        }
-
-        sellerService.removeDeposit(storeId, depositId);
-        System.out.println("Removed deposit " + depositId + " from store " + storeId);
     }
 
     /**
@@ -141,6 +108,10 @@ public class SellerController {
      * @param dimensions dimensions description for this package
      */
     public void createPackage(double cost, double weight, String dimensions) {
+        if (dimensions.isEmpty()){
+            throw new ValidationException("One or more required fields is missing");
+        }
+
         Integer packageID = sellerService.getNewPackageId();
         sellerService.createPackage(packageID, cost, weight, dimensions);
     }
@@ -152,19 +123,11 @@ public class SellerController {
     }
 
     public void removePackage(Integer packageId){
-        List<Packages> packages = sellerService.getPackages();
-        boolean existsPackages = false;
-
-        for (Packages packages1: packages){
-            if (Objects.equals(packages1.getPackageID(), packageId)){
-                existsPackages = true;
-                break;
-            }
+        try {
+            sellerService.removePackage(packageId);
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
         }
-
-        if (!existsPackages) throw new EntityNotFound("No package found with ID " + packageId);
-
-        sellerService.removePackage(packageId);
     }
 
     /**
@@ -172,6 +135,8 @@ public class SellerController {
      */
 
     public void createDelivery(String location) {
+        if (location.isEmpty()) throw new ValidationException("The required field is invalid");
+
         List<Order> orders = sellerService.filterDeliveriesByLocation(location);
         //String[] statuses = {"processing", "to be shipped", "in hub", "in transit"};
         //Random random = new Random();
@@ -186,6 +151,5 @@ public class SellerController {
         sellerService.createDelivery(deliveryId, orders, location);
 
     }
-    
-    
+
 }

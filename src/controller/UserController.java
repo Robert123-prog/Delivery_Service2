@@ -1,5 +1,6 @@
 package controller;
 
+import exceptions.BusinessLogicException;
 import exceptions.EntityNotFound;
 import model.Customer;
 import model.Delivery_Person;
@@ -44,20 +45,12 @@ public class UserController {
      * @param customerId the ID of the customer to delete
      */
     public void deleteCustomer(Integer customerId) {
-        List<Customer> customers = userService.getCustomers();
-        boolean existsCustomer = false;
-
-        for (Customer customer: customers){
-            if (customer.getCustomerID() == customerId){
-                existsCustomer = true;
-                break;
-            }
+        try {
+            userService.deleteCustomer(customerId);
+            System.out.println("Deleted customer with id " + customerId + " successfully");
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
         }
-
-        if(!existsCustomer) throw new EntityNotFound("No customer found with ID " + customerId);
-
-        userService.deleteCustomer(customerId);
-        System.out.println("Deleted customer with id " + customerId + " successfully");
     }
 
     /**
@@ -84,20 +77,14 @@ public class UserController {
      * @param employeeId the ID of the employee to delete
      */
     public void deleteEmployee(Integer employeeId) {
-        List<Employee> employees = userService.getEmployees();
-        boolean existsEmployee = false;
-
-        for (Employee employee: employees){
-            if (employee.getEmployeeID() == employeeId){
-                existsEmployee = true;
-                break;
-            }
+        try {
+            userService.unenrollEmployee(employeeId);
+            System.out.println("Employee with id " + employeeId + " unenrolled successfully");
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
+        }catch (BusinessLogicException e1){
+            System.out.println(e1.getMessage());
         }
-
-        if(!existsEmployee) throw new EntityNotFound("No employee found with ID " + employeeId);
-
-        userService.unenrollEmployee(employeeId);
-        System.out.println("Employee with id " + employeeId + " unenrolled successfully");
     }
 
     /**
@@ -115,20 +102,12 @@ public class UserController {
      * @param deliveryPersonId the ID of the delivery person to delete
      */
     public void deleteDeliveryPerson(Integer deliveryPersonId) {
-        List<Delivery_Person> deliveryPeople = userService.getDeliveryPerson();
-        boolean existsDeliveryPerson = false;
-
-        for (Delivery_Person deliveryPerson: deliveryPeople){
-            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
-                existsDeliveryPerson = true;
-                break;
-            }
+        try {
+            userService.unenrollDeliveryPerson(deliveryPersonId);
+            System.out.println("Delivery person with id " + deliveryPersonId + " unenrolled successfully");
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
         }
-
-        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
-
-        userService.unenrollDeliveryPerson(deliveryPersonId);
-        System.out.println("Delivery person with id " + deliveryPersonId + " unenrolled successfully");
     }
 
 

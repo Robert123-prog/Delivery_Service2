@@ -1,5 +1,8 @@
 package controller;
 
+import exceptions.BusinessLogicException;
+import exceptions.EntityNotFound;
+import exceptions.ValidationException;
 import model.Order;
 import service.CustomerService;
 
@@ -30,6 +33,10 @@ public class CustomerController {
      * @param email   the email address of the customer
      */
     public void createLoggedInCustomer(String name, String address, String phone, String email) {
+        if (name.isEmpty() || address.isEmpty() || phone.isEmpty() || email.isEmpty()){
+            throw new ValidationException("One or more fields is invalid");
+        }
+
         Integer id = customerService.getNewCustomerId();
         customerService.createCustomer(id, name, address, phone, email);
         System.out.println("Registered customer with id " + id + " successfully");
@@ -46,8 +53,12 @@ public class CustomerController {
      */
     public void makeAnOrder(Integer customerId, Date orderDate, LocalDateTime deliveryDateTime, List<Integer> packageIds) throws SQLException {
         Integer orderId = customerService.getNewOrderId();
-        customerService.placeOrder(customerId, orderId, orderDate, deliveryDateTime, packageIds);
-        System.out.println("Order with id " + orderId + " by customer with id " + customerId + " successfully");
+        try {
+            customerService.placeOrder(customerId, orderId, orderDate, deliveryDateTime, packageIds);
+            System.out.println("Order with id " + orderId + " by customer with id " + customerId + " successfully");
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -57,8 +68,14 @@ public class CustomerController {
      * @param orderId    the ID of the order to remove
      */
     public void removeAnOrder(Integer customerId, Integer orderId) {
-        customerService.removeOrder(customerId, orderId);
-        System.out.println("Order with id " + orderId + " by customer with id " + customerId + " removed successfully");
+        try {
+            customerService.removeOrder(customerId, orderId);
+            System.out.println("Order with id " + orderId + " by customer with id " + customerId + " removed successfully");
+        } catch (EntityNotFound e) {
+            System.out.println(e.getMessage());
+        }catch (BusinessLogicException e1){
+            System.out.println(e1.getMessage());
+        }
     }
 
     /**
@@ -67,12 +84,16 @@ public class CustomerController {
      * @param /orders list of orders to display
      */
     public void viewPersonalOrders(Integer customerId) {
-        List<Order> orders = customerService.getOrdersFromCustomers(customerId);
-        StringBuilder output = new StringBuilder("Available Orders:\n");
+        try {
 
-        orders.forEach(order -> output.append(order.toString()).append("\n"));
+            List<Order> orders = customerService.getOrdersFromCustomers(customerId);
+            StringBuilder output = new StringBuilder("Available Orders:\n");
 
-        System.out.println(output);
+            orders.forEach(order -> output.append(order.toString()).append("\n"));
+            System.out.println(output);
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -83,7 +104,12 @@ public class CustomerController {
      * @return total cost calculated from packages
      */
     public double calculateOrderCost(Integer orderId) {
-        return customerService.calculateAndUpdateOrderCost(orderId);
+        try {
+            return customerService.calculateAndUpdateOrderCost(orderId);
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
+            return 0.0;
+        }
     }
 
     /**
@@ -94,8 +120,12 @@ public class CustomerController {
      */
 
     public void scheduleDeliveryDate(Integer orderID, LocalDateTime deliveryDateTime) {
-        customerService.scheduleDelivery(orderID, deliveryDateTime);
-        System.out.println("Scheduled Delivery date for Order with id " + orderID + " successfully");
+        try {
+            customerService.scheduleDelivery(orderID, deliveryDateTime);
+            System.out.println("Scheduled Delivery date for Order with id " + orderID + " successfully");
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
+        }
     }
 
     public void viewAllPackages() {
@@ -109,10 +139,15 @@ public class CustomerController {
      * @return
      */
     public void getOrdersSortedByPriceDescending(Integer customerId) {
-        List<Order>orders = customerService.getOrdersFromCustomers(customerId);
-        List<Order>sortedOrders = customerService.getOrdersSortedByPriceDescending(orders);
-        StringBuilder output = new StringBuilder("Available Orders:\n");
-        sortedOrders.forEach(order -> output.append(order.toString()).append("\n"));
-        System.out.println(output);
+        try {
+            List<Order> orders = customerService.getOrdersFromCustomers(customerId);
+            List<Order> sortedOrders = customerService.getOrdersSortedByPriceDescending(orders);
+
+            StringBuilder output = new StringBuilder("Available Orders:\n");
+            sortedOrders.forEach(order -> output.append(order.toString()).append("\n"));
+            System.out.println(output);
+        }catch (EntityNotFound e){
+            System.out.println(e.getMessage());
+        }
     }
 }
