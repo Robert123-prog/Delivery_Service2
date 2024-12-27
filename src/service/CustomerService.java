@@ -61,8 +61,7 @@ public class CustomerService {
 
         String location = customer.getAddress();
         Order order = new Order(orderID, customerId, orderDate, deliveryDateTime);
-        order.setLocation(location);
-        orderIRepository.create(order);
+
 
         for (Integer packageId : packageIds) {
             Packages packages = packageIRepository.get(packageId);
@@ -75,20 +74,24 @@ public class CustomerService {
             }
         }
 
-        //orderIRepository.create(order);
-        //order.updateTotalCost();
 
-        customer.addDOrder(order);
+//        customer.addDOrder(order);
+//        order.setCustomerID(customerId);
+//
+//        orderIRepository.update(order);
+//        customerIRepository.update(customer);
+//
+//
+//        // Actualizează obiectul Order în baza de date după ce setezi costul total
+//        orderIRepository.update(order);
+
+        order.setLocation(location);
+        order.updateTotalCost(); // Calculate and set the total cost
         order.setCustomerID(customerId);
+        orderIRepository.create(order); // Persist the order to the repository
 
-        //orderIRepository.update(order);
+        customer.addDOrder(order); // Add order to customer
         customerIRepository.update(customer);
-
-        double totalCost = calculateAndUpdateOrderCost(orderID);
-        order.setTotalCost(120);
-
-        // Actualizează obiectul Order în baza de date după ce setezi costul total
-        orderIRepository.update(order);
     }
 
 

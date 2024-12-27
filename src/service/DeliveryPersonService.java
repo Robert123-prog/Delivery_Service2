@@ -46,7 +46,7 @@ public class DeliveryPersonService {
      * @param license Driver's license number
      */
     public void enrollAsDriver(Integer deliveryPersonId, String name, String phone, String license) {
-        Delivery_Person deliveryPerson = new Delivery_Person(deliveryPersonId,name,phone);
+        Delivery_Person deliveryPerson = new Delivery_Person(deliveryPersonId, phone, name);
 
         deliveryPerson.setVerified(true);
         deliveryPersonIRepository.create(deliveryPerson);
