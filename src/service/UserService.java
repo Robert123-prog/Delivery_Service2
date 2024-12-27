@@ -84,10 +84,14 @@ public class UserService {
         Employee employee = employeeIRepository.get(employeeId);
         if (employee == null) throw new EntityNotFound("No employee was found with ID " + employeeId);
 
-        Department department = departmentIRepository.get(employee.getDepartmentID());
-        if (department == null) throw new BusinessLogicException("The employee is not assigned to any department");
+//        Department department = departmentIRepository.get(employee.getDepartmentID());
+//        if (department == null) throw new BusinessLogicException("The employee is not assigned to any department");
 
-        department.removeEmployee(employee);
+        if (departmentIRepository.get(employee.getDepartmentID()) != null){
+            Department department = departmentIRepository.get(employee.getDepartmentID());
+            department.removeEmployee(employee);
+        }
+
         employeeIRepository.delete(employeeId);
     }
 
