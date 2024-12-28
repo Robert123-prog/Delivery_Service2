@@ -45,6 +45,8 @@ public class Packages implements HasID {
         this.packageID = packageID;
         this.weight = weight;
         this.dimensions = dimensions;
+        this.orderID = null;
+        this.depositId = null;
     }
 
     /**
@@ -141,7 +143,7 @@ public class Packages implements HasID {
      * @return A comma-separated string of column names.
      */
     public static String getColumns() {
-        return "packageID, cost, orderID, weight, dimensions, depositId";
+        return "packageID, cost, weight, dimensions";
     }
 
     /**
@@ -151,12 +153,11 @@ public class Packages implements HasID {
      */
     public String getValues() {
         return String.format(
-                "%d, %.2f, %.2f, '%s', %d",
+                "%d, %.2f, %.2f, '%s'",
                 packageID,
                 cost,
                 weight,
-                dimensions,
-                depositId
+                dimensions
         );
     }
 

@@ -73,6 +73,7 @@ public class CustomerService {
             }
         }
 
+
         // Set order cost and save
         order.setTotalCost(totalCost);
         order.setLocation(location);
@@ -80,6 +81,15 @@ public class CustomerService {
 
         // Update customer
         customer.addDOrder(order);
+
+
+//        customer.addDOrder(order);
+//        order.setCustomerID(customerId);
+//
+//        orderIRepository.update(order);
+//        customerIRepository.update(customer);
+//
+
         customerIRepository.update(customer);
     }
 
