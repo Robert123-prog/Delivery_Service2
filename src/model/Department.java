@@ -172,21 +172,22 @@ public class Department implements HasID {
 
         return departmentID + ","+
                 name + "," +
-                task + serilizedEmployees.toString();
+                task;
+                //serilizedEmployees.toString();
     }
 
     public static Department fromCsv(String csvLine) {
         // Split the input string into parts
-        String[] parts = csvLine.split(",", 4);
+        String[] parts = csvLine.split(",", 3);
 
         // Parse basic department information
-        Integer departmentID = Integer.parseInt(parts[0].replace("Department", "").trim());
+        Integer departmentID = Integer.parseInt(parts[0]);
         String name = parts[1];
         String task = parts[2];
-        String employeesString = parts[3]; // Serialized employees string
-
+        //String employeesString = parts[3]; // Serialized employees string
+/*
         // Create a new Department object
-        Department department = new Department(departmentID, name, task);
+
 
         // Parse and add employees if they exist
         if (!employeesString.isEmpty()) {
@@ -199,6 +200,8 @@ public class Department implements HasID {
             }
         }
 
-        return department;
+ */
+
+        return new Department(departmentID, name, task);
     }
 }

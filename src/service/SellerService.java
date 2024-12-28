@@ -263,4 +263,10 @@ public class SellerService {
         }
         return maxId + 1;
     }
+    public List<Packages> getPackagesFromOrder(Integer orderId) {
+        Order order = orderIRepository.get(orderId);
+        if (order == null) throw new EntityNotFound("No order found with ID " + orderId);
+
+        return order.getPackages();
+    }
 }

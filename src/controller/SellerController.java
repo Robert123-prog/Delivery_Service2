@@ -151,5 +151,20 @@ public class SellerController {
         sellerService.createDelivery(deliveryId, orders, location);
 
     }
+    /**
+     * Displays all packages associated with a specific order.
+     *
+     * @param orderId The ID of the order
+     */
+    public void viewPackagesFromOrder(Integer orderId) {
+        try {
+            List<Packages> packages = sellerService.getPackagesFromOrder(orderId);
+            StringBuilder output = new StringBuilder("Packages for Order ID " + orderId + ":\n");
+            packages.forEach(pkg -> output.append(pkg.toString()).append("\n"));
+            System.out.println(output);
+        } catch (EntityNotFound e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
 }

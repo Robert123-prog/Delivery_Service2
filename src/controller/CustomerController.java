@@ -105,7 +105,7 @@ public class CustomerController {
      */
     public double calculateOrderCost(Integer orderId) {
         try {
-            return customerService.calculateAndUpdateOrderCost(orderId);
+            return customerService.calculateOrderCost(orderId);
         }catch (EntityNotFound e){
             System.out.println(e.getMessage());
             return 0.0;

@@ -213,7 +213,7 @@ public class Order implements HasID {
                 ", cost=" + totalCost +
                 ", status='" + status + '\'' +
                 ", packages=" + packages +
-                //", location='" + location + '\'' +
+                ", location='" + location + '\'' +
                 '}';
     }
 
@@ -263,13 +263,6 @@ public class Order implements HasID {
         );
     }
 
-    public void updateTotalCost() {
-        double total = 0.0;
-        for (Packages pack : packages) {
-            total += pack.getCost(); // Adaugă costul fiecărui pachet
-        }
-        this.setTotalCost(total); // Setează costul total în comandă
-    }
     /**
      * Gets the unique identifier for this object, as required by HasID interface.
      *
@@ -282,8 +275,6 @@ public class Order implements HasID {
 
     public String toCsv() {
         StringBuilder serializedPackages = new StringBuilder();
-
-        // Serialize the packages
         for (Packages pack : packages) {
             serializedPackages.append(pack.toCsv()).append(";");
         }
@@ -292,38 +283,47 @@ public class Order implements HasID {
                 customerID + "," +
                 orderDate + "," +
                 deliveryDateTime.format(DATE_TIME_FORMATTER) + "," +
-                serializedPackages.toString();
-
+                String.format("%.2f", totalCost) + "," +
+                location;
+                //serializedPackages.toString();
     }
 
     public static Order fromCsv(String csvLine) {
         // Split the CSV line into parts
-        String[] parts = csvLine.split(",", 5); // Limit split to 5 parts to keep packages as one string
+        String[] parts = csvLine.split(",", 6); // Changed to 6 to include totalCost
 
-        // Parse order attributes
         Integer orderID = Integer.parseInt(parts[0]);
         Integer customerID = Integer.parseInt(parts[1]);
         String orderDateStr = parts[2];
-
-        // Parse orderDate
         Date orderDate = java.sql.Date.valueOf(orderDateStr);
-
-        // Parse deliveryDateTime
         LocalDateTime deliveryDateTime = LocalDateTime.parse(parts[3], DATE_TIME_FORMATTER);
 
         // Create the order object
         Order order = new Order(orderID, customerID, orderDate, deliveryDateTime);
 
-        // Deserialize packages if any
         if (parts.length > 4) {
-            String packagesString = parts[4]; // The packages part as a single string
-            String[] packagesData = packagesString.split(";"); // Split by semicolon for individual packages
+            order.setTotalCost(Double.parseDouble(parts[4]));
+        }
+        if (parts.length > 5){
+            String location = parts[5];
+            order.setLocation(location);
+        }
+
+        /*
+        // Deserialize packages if any
+        if (parts.length > 6) {
+            String packagesString = parts[6];
+            String[] packagesData = packagesString.split(";");
             for (String packageData : packagesData) {
                 if (!packageData.isEmpty()) {
                     order.addPackage(Packages.fromCsv(packageData));
                 }
             }
         }
+         */
         return order;
     }
 }
+//TODO sa vad cum fac cu orderu asta, el merge da atunci nu mai stochez in fisier toate pachetele
+//TODO sa nu trebuieasca sa mai scriu orderDateul de la tastatura
+//TODO total costu acuma il calculeaza bine da probabil o sa trebuieasaca sa schimb si in DBRepo

@@ -516,7 +516,7 @@ public class DatabaseTest {
         order.addPackage(packages3);
 
         double expectedTotalCost = packages1.getCost() + packages2.getCost() + packages3.getCost();
-        double actualTotalCost = customerService.calculateAndUpdateOrderCost(order.getId());
+        double actualTotalCost = customerService.calculateOrderCost(order.getId());
         assertEquals(expectedTotalCost, actualTotalCost);
     }
 
@@ -527,7 +527,7 @@ public class DatabaseTest {
 
         Exception exception = assertThrows(
                 EntityNotFound.class,
-                () -> customerService.calculateAndUpdateOrderCost(orderId),
+                () -> customerService.calculateOrderCost(orderId),
                 "Expected calculateAndUpdateOrderCost to throw ValidationException"
         );
         assertEquals("No order found with ID " + orderId, exception.getMessage());

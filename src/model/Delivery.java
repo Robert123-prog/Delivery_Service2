@@ -186,7 +186,6 @@ public class Delivery implements HasID {
                 //", transportationID=" + transportationID +
                 //", transportation_type=" + transportation_type +
                 ", location='" + location +
-                ", orders=" + orders +
                 '}';
     }
 
@@ -252,11 +251,15 @@ public class Delivery implements HasID {
     public String toCsv(){
         StringBuilder serializedOrders = new StringBuilder();
 
+        /*
         for (Order order: orders){
             serializedOrders.append(order.toCsv()).append(";");
         }
 
-        return  deliveryID + ",";
+         */
+
+        return  deliveryID + "," +
+                location;
                 //orderID + "," +
                 //time + ",";
 
@@ -267,7 +270,8 @@ public class Delivery implements HasID {
 
         Integer deliveryId = Integer.parseInt(parts[0]);
 //        Integer deliveryPersonId = Integer.parseInt(parts[1]);
-//        Integer employeeId = Integer.parseInt(parts[2]);
+//        Integer employeeId = Integer.parseInt(parts[1]);
+
 //        Integer orderId = Integer.parseInt(parts[1]);
 //        Integer transportationId = Integer.parseInt(parts[4]);
 
@@ -282,6 +286,12 @@ public class Delivery implements HasID {
 
         Delivery delivery = new Delivery(deliveryId);
 
+        if(parts.length > 1)
+        {
+            String location = parts[1];
+            delivery.setLocation(location);
+        }
+        /*
         if (parts.length > 1){
             String ordersString = parts[1];
             String[] ordersData = ordersString.split(";");
@@ -291,6 +301,8 @@ public class Delivery implements HasID {
                 }
             }
         }
+
+         */
 
         return new Delivery(deliveryId);//, time);
     }
