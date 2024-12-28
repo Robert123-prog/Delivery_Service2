@@ -91,7 +91,8 @@ public class APP4 {
             System.out.println("2. Delete Customer");
             System.out.println("3. Delete Employee");
             System.out.println("4. Delete Delivery Person");
-            System.out.println("5. Back to Main Menu");
+            System.out.println("5. Create Department");
+            System.out.println("6. Back to Main Menu");
             System.out.print("Select an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
@@ -127,6 +128,13 @@ public class APP4 {
 
                     break;
                 case 5:
+                    System.out.print("Enter Department Name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter Department Task: ");
+                    String task = scanner.nextLine();
+                    userController.createDepartment(name, task);
+                    break;
+                case 6:
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -152,6 +160,7 @@ public class APP4 {
             System.out.println("9. View all Packages");
             System.out.println("10. Create a Delivery");
             System.out.println("11. Back to Main Menu");
+            System.out.println("12. View Packages from Order");
             System.out.print("Select an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
@@ -243,6 +252,12 @@ public class APP4 {
                     }
                 case 11:
                     return;
+                case 12:
+                    System.out.print("Enter Order ID: ");
+                    int orderId = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+                    sellerController.viewPackagesFromOrder(orderId);
+                    break;
                 default:
                     System.out.println("Invalid option. Please try again.");
             }
@@ -603,7 +618,7 @@ public class APP4 {
     }
 
     public static boolean testDatabaseConnection() {
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola")) {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
 
         //try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
 
@@ -727,7 +742,7 @@ public class APP4 {
 
     public static Object[] createDbServices() {
         try {
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola");
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
 
 
             //Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");

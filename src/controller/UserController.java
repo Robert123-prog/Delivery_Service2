@@ -109,6 +109,19 @@ public class UserController {
             System.out.println(e.getMessage());
         }
     }
-
+    /**
+     * Creates a new department.
+     *
+     * @param name The name of the department
+     * @param task The primary task of the department
+     */
+    public void createDepartment(String name, String task) {
+        try {
+            userService.createDepartment(name, task);
+            System.out.println("Department created successfully.");
+        } catch (Exception e) {
+            System.out.println("Failed to create department: " + e.getMessage());
+        }
+    }
 
 }

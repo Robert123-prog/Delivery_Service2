@@ -189,8 +189,8 @@ public class Customer implements HasID {
                 name + "," +
                 address + "," +
                 phone + "," +
-                email + "," +
-                serilizedOrders.toString();
+                email + ",";
+                //serilizedOrders.toString();
     }
 
     /**

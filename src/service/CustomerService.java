@@ -62,17 +62,25 @@ public class CustomerService {
         String location = customer.getAddress();
         Order order = new Order(orderID, customerId, orderDate, deliveryDateTime);
 
-
+        double totalCost = 0;
         for (Integer packageId : packageIds) {
             Packages packages = packageIRepository.get(packageId);
             if (packages != null) {
-                order.addPackage(packages);
-
-                // Inserare în tabelul many-to-many (orderPackages)
-//                String insertOrderPackageSql = "INSERT INTO orderPackages (orderID, packageID) VALUES (?, ?)";
-//                DbUtil.executeUpdate(insertOrderPackageSql, orderID, packageId);
+                packages.setOrderID(orderID);  // Set the order ID in package
+                order.addPackage(packages);    // Add package to order
+                totalCost += packages.getCost();
+                packageIRepository.update(packages); // Update package with new order ID
             }
         }
+
+
+        // Set order cost and save
+        order.setTotalCost(totalCost);
+        order.setLocation(location);
+        orderIRepository.create(order);
+
+        // Update customer
+        customer.addDOrder(order);
 
 
 //        customer.addDOrder(order);
@@ -81,36 +89,17 @@ public class CustomerService {
 //        orderIRepository.update(order);
 //        customerIRepository.update(customer);
 //
-//
-//        // Actualizează obiectul Order în baza de date după ce setezi costul total
-//        orderIRepository.update(order);
 
-        order.setLocation(location);
-        order.updateTotalCost(); // Calculate and set the total cost
-        order.setCustomerID(customerId);
-        orderIRepository.create(order); // Persist the order to the repository
-
-        customer.addDOrder(order); // Add order to customer
         customerIRepository.update(customer);
     }
 
-
-    /**
-     * Calculates and updates the total cost of an order based on its packages
-     *
-     * @param orderId ID of the order to calculate cost for
-     */
-    public double calculateAndUpdateOrderCost(Integer orderId) {
+    public double calculateOrderCost(Integer orderId) {
         Order order = orderIRepository.get(orderId);
         if (order == null) throw new EntityNotFound("No order found with ID " + orderId);
 
-        double totalCost = order.getPackages().stream()
+        return order.getPackages().stream()
                 .mapToDouble(Packages::getCost)
                 .sum();
-
-        //order.setTotalCost(totalCost);
-        //orderIRepository.update(order);
-        return totalCost;
     }
 
     public void removeOrder(Integer customerId, Integer orderID) {

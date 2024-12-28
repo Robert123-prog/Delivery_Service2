@@ -46,6 +46,26 @@ public class UserService {
     }
 
     /**
+     * Creates a new department and adds it to the repository.
+     *
+     * @param name The name of the department
+     * @param task The primary task of the department
+     */
+    public void createDepartment(String name, String task) {
+        Department department = new Department(generateDepartmentId(), name, task);
+        departmentIRepository.create(department);
+    }
+
+    /**
+     * Generates a new unique ID for a department.
+     *
+     * @return A unique department ID
+     */
+    private Integer generateDepartmentId() {
+        // Implement logic to generate a unique department ID
+        return departmentIRepository.readAll().size() + 1;
+    }
+    /**
      * Retrieves all customers from the repository.
      *
      * @return List of all customers
