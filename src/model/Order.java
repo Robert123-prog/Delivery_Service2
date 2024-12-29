@@ -1,5 +1,6 @@
 package model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class Order implements HasID {
 
     private final Integer orderID;
     private Integer customerID;
-    private Date orderDate;
+    private LocalDateTime orderDate;
     protected LocalDateTime deliveryDateTime;
     private double totalCost;
     private String status;
@@ -32,15 +33,14 @@ public class Order implements HasID {
     /**
      * Constructs an Order with the specified details.
      *
-     * @param orderID          the unique identifier for this order
-     * @param orderDate        the date when the order was placed
+     * @param orderID          the unique identifier for this order     the date when the order was placed
      * @param deliveryDateTime the date and time when the order is to be delivered
      * @param /totalCost       the total cost of the order
      * @param /status          the current status of the order
      */
-    public Order(Integer orderID, Integer customerID, Date orderDate, LocalDateTime deliveryDateTime) {
+    public Order(Integer orderID, Integer customerID, LocalDateTime deliveryDateTime) {
         this.orderID = orderID;
-        this.orderDate = orderDate;
+        this.orderDate = orderDate != null ? orderDate : LocalDateTime.now();
         this.deliveryDateTime = deliveryDateTime;
         //this.totalCost = totalCost;
         //this.status = status;
@@ -92,7 +92,7 @@ public class Order implements HasID {
      *
      * @return the order date
      */
-    public Date getOrderDate() {
+    public LocalDateTime getOrderDate() {
         return orderDate;
     }
 
@@ -101,7 +101,7 @@ public class Order implements HasID {
      *
      * @param orderDate the new date for this order
      */
-    public void setOrderDate(Date orderDate) {
+    public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
     }
 
@@ -236,7 +236,7 @@ public class Order implements HasID {
                 "%d, %d, '%s', '%s', %.2f, '%s', %d, '%s'",
                 orderID,
                 customerID,
-                orderDate != null ? new java.sql.Date(orderDate.getTime()) : null,
+                orderDate != null ? java.sql.Timestamp.valueOf(orderDate) : null,
                 deliveryDateTime != null ? java.sql.Timestamp.valueOf(deliveryDateTime) : null,
                 totalCost,
                 status,
@@ -254,7 +254,7 @@ public class Order implements HasID {
         return String.format(
                 "customerID = %d, orderDate = '%s', deliveryDateTime = '%s', totalCost = %.2f, status = '%s', deliveryId = %d, location = '%s'",
                 customerID,
-                orderDate != null ? new java.sql.Date(orderDate.getTime()) : null,
+                orderDate != null ? java.sql.Timestamp.valueOf(orderDate) : null,
                 deliveryDateTime != null ? java.sql.Timestamp.valueOf(deliveryDateTime) : null,
                 totalCost,
                 status,
@@ -299,7 +299,7 @@ public class Order implements HasID {
         LocalDateTime deliveryDateTime = LocalDateTime.parse(parts[3], DATE_TIME_FORMATTER);
 
         // Create the order object
-        Order order = new Order(orderID, customerID, orderDate, deliveryDateTime);
+        Order order = new Order(orderID, customerID, deliveryDateTime);
 
         if (parts.length > 4) {
             order.setTotalCost(Double.parseDouble(parts[4]));

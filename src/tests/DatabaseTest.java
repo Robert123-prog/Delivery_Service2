@@ -91,7 +91,7 @@ public class DatabaseTest {
     @Test
     public void testOrders(){
         //Test create + read
-        Order order = new Order(1, 1, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order = new Order(1, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
         order.setLocation("Sibiu");
         orderIRepository.create(order);
 
@@ -301,7 +301,7 @@ public class DatabaseTest {
         Customer customer = new Customer(customerId, "Robert", "Manastur", "123456789", "robert@mail.com");
         customerIRepository.create(customer);
 
-        customerService.placeOrder(customerId, orderId, orderDate, deliveryDateTime, packageIds);
+        customerService.placeOrder(customerId, orderId, deliveryDateTime, packageIds);
 
         Order fetchedOrder = orderIRepository.get(orderId);
         assertNotNull(fetchedOrder);
@@ -326,7 +326,7 @@ public class DatabaseTest {
 
         Exception exception = assertThrows(
                 EntityNotFound.class,
-                () -> customerService.placeOrder(customerId, orderId, orderDate, deliveryDateTime, packageIds),
+                () -> customerService.placeOrder(customerId, orderId, deliveryDateTime, packageIds),
                 "Expected placeOrder to throw ValidationException"
         );
 
@@ -376,12 +376,12 @@ public class DatabaseTest {
         customerIRepository.create(customer2);
         customerIRepository.create(customer3);
 
-        Order order1 = new Order(1, 1, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order2 = new Order(2, 1, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order3 = new Order(3, 2, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order4 = new Order(4, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order5 = new Order(5, 2, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order6 = new Order(6, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order1 = new Order(1, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order2 = new Order(2, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order3 = new Order(3, 2, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order4 = new Order(4, 3, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order5 = new Order(5, 2, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order6 = new Order(6, 3, LocalDateTime.of(2024, 12, 12, 12, 0));
 
         order1.setStatus("to be shipped");
         order2.setStatus("processing");
@@ -443,12 +443,12 @@ public class DatabaseTest {
         customerIRepository.create(customer2);
         customerIRepository.create(customer3);
 
-        Order order1 = new Order(1, 1, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order2 = new Order(2, 1, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order3 = new Order(3, 2, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order4 = new Order(4, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order5 = new Order(5, 2, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order6 = new Order(6, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order1 = new Order(1, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order2 = new Order(2, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order3 = new Order(3, 2, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order4 = new Order(4, 3, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order5 = new Order(5, 2, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order6 = new Order(6, 3, LocalDateTime.of(2024, 12, 12, 12, 0));
 
         order1.setStatus("processing");
         order2.setStatus("processing");
@@ -502,7 +502,7 @@ public class DatabaseTest {
         Customer customer = new Customer(1, "Robert", "Manastur", "123456789", "robert@mail.com");
         customerIRepository.create(customer);
 
-        Order order = new Order(1, 1, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order = new Order(1, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
         Packages packages1 = new Packages(1, 100.2, "4x4x4", 100.0);
         Packages packages2 = new Packages(2, 500.2, "2x8x4", 50.0);
         Packages packages3 = new Packages(3, 30.2, "2x3x5", 200.0);
@@ -542,12 +542,12 @@ public class DatabaseTest {
         customerIRepository.create(customer2);
         customerIRepository.create(customer3);
 
-        Order order1 = new Order(1, 1, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order2 = new Order(2, 1, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order3 = new Order(3, 2, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order4 = new Order(4, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order5 = new Order(5, 2, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order6 = new Order(6, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order1 = new Order(1, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order2 = new Order(2, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order3 = new Order(3, 2, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order4 = new Order(4, 3, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order5 = new Order(5, 2, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order6 = new Order(6, 3, LocalDateTime.of(2024, 12, 12, 12, 0));
 
         customerIRepository.update(customer1);
         customerIRepository.update(customer2);
@@ -593,12 +593,12 @@ public class DatabaseTest {
         customerIRepository.create(customer2);
         customerIRepository.create(customer3);
 
-        Order order1 = new Order(1, 1, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order2 = new Order(2, 1, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order3 = new Order(3, 2, new Date(2024-10-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order4 = new Order(4, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order5 = new Order(5, 2, new Date(2024-12-12), LocalDateTime.of(2024, 12, 12, 12, 0));
-        Order order6 = new Order(6, 3, new Date(2024-11-12), LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order1 = new Order(1, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order2 = new Order(2, 1, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order3 = new Order(3, 2, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order4 = new Order(4, 3, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order5 = new Order(5, 2, LocalDateTime.of(2024, 12, 12, 12, 0));
+        Order order6 = new Order(6, 3, LocalDateTime.of(2024, 12, 12, 12, 0));
 
         customerIRepository.update(customer1);
         customerIRepository.update(customer2);

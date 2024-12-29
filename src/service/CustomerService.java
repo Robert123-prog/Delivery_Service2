@@ -53,14 +53,14 @@ public class CustomerService {
         return maxId;
     }
 
-    public void placeOrder(Integer customerId, Integer orderID, Date orderDate, LocalDateTime deliveryDateTime, List<Integer> packageIds) throws SQLException {
+    public void placeOrder(Integer customerId, Integer orderID, LocalDateTime deliveryDateTime, List<Integer> packageIds) throws SQLException {
         Customer customer = customerIRepository.get(customerId);
         if (customer == null) {
             throw new EntityNotFound("Customer not found for ID " + customerId);
         }
 
         String location = customer.getAddress();
-        Order order = new Order(orderID, customerId, orderDate, deliveryDateTime);
+        Order order = new Order(orderID, customerId, deliveryDateTime);
 
         double totalCost = 0;
         for (Integer packageId : packageIds) {
