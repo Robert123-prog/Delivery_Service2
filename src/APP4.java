@@ -1,5 +1,6 @@
 import controller.*;
 import exceptions.ValidationException;
+import helpers.Validation;
 import model.*;
 import repository.*;
 import service.*;
@@ -170,31 +171,64 @@ public class APP4 {
                     sellerController.viewAllStores();
                     break;
                 case 2:
-                    try {
-                        System.out.print("Enter Store Name: ");
-                        String storeName = scanner.nextLine();
-                        System.out.print("Enter Store Address: ");
-                        String storeAddress = scanner.nextLine();
-                        System.out.print("Enter Store Contact: ");
-                        String storeContact = scanner.nextLine();
-                        sellerController.createStore(storeName, storeAddress, storeContact);
-                    }catch (ValidationException e){
-                        System.out.println(e.getMessage());
+                    String storeName;
+                    while (true){
+                        try {
+                            System.out.print("Enter Store Name: ");
+                            storeName = scanner.nextLine();
+                            Validation.validateName(storeName);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
                     }
+
+                    String storeAddress;
+                    while (true){
+                        try {
+                            System.out.print("Enter Store Address: ");
+                            storeAddress = scanner.nextLine();
+                            Validation.validateAddress(storeAddress);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
+
+                    String storeContact;
+                    while (true){
+                        try {
+                            System.out.print("Enter Store Contact: ");
+                            storeContact = scanner.nextLine();
+                            Validation.validateName(storeContact);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
+
+                    sellerController.createStore(storeName, storeAddress, storeContact);
                     break;
                 case 3:
-                    try {
-                        System.out.print("Enter Store ID: ");
-                        int storeId = scanner.nextInt();
-                        scanner.nextLine(); // Consume newline
-                        System.out.print("Enter Deposit Address: ");
-                        String depositAddress = scanner.nextLine();
-                        System.out.print("Enter Deposit Status: ");
-                        String depositStatus = scanner.nextLine();
-                        sellerController.registerDeposit(storeId, depositAddress, depositStatus);
-                    }catch (ValidationException e){
-                        System.out.println(e.getMessage());
+                    System.out.print("Enter Store ID: ");
+                    int storeId = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+
+                    String depositAddress;
+                    while (true) {
+                        try {
+                            System.out.print("Enter Deposit Address: ");
+                            depositAddress = scanner.nextLine();
+                            Validation.validateAddress(depositAddress);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
                     }
+
+                    System.out.print("Enter Deposit Status: ");
+                    String depositStatus = scanner.nextLine();
+                    sellerController.registerDeposit(storeId, depositAddress, depositStatus);
                     break;
                 case 4:
                     sellerController.viewAllDeposits();
