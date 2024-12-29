@@ -1,5 +1,6 @@
 import controller.*;
 import exceptions.ValidationException;
+import helpers.Validation;
 import model.*;
 import repository.*;
 import service.*;
@@ -8,6 +9,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -170,31 +172,63 @@ public class APP4 {
                     sellerController.viewAllStores();
                     break;
                 case 2:
-                    try {
-                        System.out.print("Enter Store Name: ");
-                        String storeName = scanner.nextLine();
-                        System.out.print("Enter Store Address: ");
-                        String storeAddress = scanner.nextLine();
-                        System.out.print("Enter Store Contact: ");
-                        String storeContact = scanner.nextLine();
-                        sellerController.createStore(storeName, storeAddress, storeContact);
-                    }catch (ValidationException e){
-                        System.out.println(e.getMessage());
+                    String storeName;
+                    while (true){
+                        try {
+                            System.out.print("Enter Store Name: ");
+                            storeName = scanner.nextLine();
+                            Validation.validateName(storeName);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
                     }
+
+                    String storeAddress;
+                    while (true){
+                        try {
+                            System.out.print("Enter Store Address: ");
+                            storeAddress = scanner.nextLine();
+                            Validation.validateAddress(storeAddress);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
+
+                    String storeContact;
+                    while (true){
+                        try {
+                            System.out.print("Enter Store Contact: ");
+                            storeContact = scanner.nextLine();
+                            Validation.validateName(storeContact);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                    sellerController.createStore(storeName, storeAddress, storeContact);
                     break;
                 case 3:
-                    try {
-                        System.out.print("Enter Store ID: ");
-                        int storeId = scanner.nextInt();
-                        scanner.nextLine(); // Consume newline
-                        System.out.print("Enter Deposit Address: ");
-                        String depositAddress = scanner.nextLine();
-                        System.out.print("Enter Deposit Status: ");
-                        String depositStatus = scanner.nextLine();
-                        sellerController.registerDeposit(storeId, depositAddress, depositStatus);
-                    }catch (ValidationException e){
-                        System.out.println(e.getMessage());
+                    System.out.print("Enter Store ID: ");
+                    int storeId = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+
+                    String depositAddress;
+                    while(true){
+                        try{
+                            System.out.print("Enter Deposit Address: ");
+                            depositAddress = scanner.nextLine();
+                            Validation.validateAddress(depositAddress);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
                     }
+
+                    System.out.print("Enter Deposit Status: ");
+                    String depositStatus = scanner.nextLine();
+                    sellerController.registerDeposit(storeId, depositAddress, depositStatus);
                     break;
                 case 4:
                     sellerController.viewAllDeposits();
@@ -289,24 +323,55 @@ public class APP4 {
                     customerController.viewAllCustomers();
                     break;
                 case 2:
-                    try{
-                    System.out.print("Enter Name: ");
-                    String name = scanner.nextLine();
+                    String name;
+                    while (true){
+                        try{
+                            System.out.print("Enter Name: ");
+                            name = scanner.nextLine();
+                            Validation.validateName(name);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
 
-                    System.out.print("Enter Address: ");
-                    String address = scanner.nextLine();
+                    String address;
+                    while (true){
+                        try {
+                            System.out.print("Enter Address: ");
+                            address = scanner.nextLine();
+                            Validation.validateAddress(address);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
 
-                    System.out.print("Enter Phone: ");
-                    String phone = scanner.nextLine();
+                    String phone;
+                    while (true){
+                        try {
+                            System.out.print("Enter Phone: ");
+                            phone = scanner.nextLine();
+                            Validation.validatePhoneNumber(phone);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
 
-                    System.out.print("Enter Email: ");
-                    String email = scanner.nextLine();
+                    String email;
+                    while (true){
+                        try{
+                            System.out.print("Enter Email: ");
+                            email = scanner.nextLine();
+                            Validation.validateEmail(email);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
 
                     customerController.createLoggedInCustomer(name, address, phone, email);
-                    } catch (ValidationException e) {
-                        e.setMessage("Invalid input: " + e.getMessage()); // Add context to the exception
-                        System.out.println(e.getMessage());
-                    }
                     break;
                 case 3:
                     System.out.print("Enter customer ID: ");
@@ -317,22 +382,31 @@ public class APP4 {
                     String orderDateString = scanner.nextLine();
                     Date orderDate = Date.valueOf(orderDateString);
 
-                    System.out.println("Delivery Date and Time: ");
-                    System.out.println("=======================================================");
-                    System.out.println("Please enter the date and time in the following format: yyyy-MM-ddThh:mm,");
-                    System.out.println("Where:");
-                    System.out.println("y = year");
-                    System.out.println("M = month");
-                    System.out.println("d = day");
-                    System.out.println("h = hour");
-                    System.out.println("m = minutes");
-                    System.out.println("=======================================================");
-                    System.out.println("!!!IF YOU DONT WANT THE SPECIFIC MINUTES, ENTER: hh:00");
-                    System.out.println("=======================================================");
-                    System.out.println("DISCLAIMER: The order might not arrive in the exact specified minute");
-                    System.out.println("=======================================================");
+                    LocalDateTime dateTime;
+                    while (true){
+                        try {
+                            System.out.println("Delivery Date and Time: ");
+                            System.out.println("=======================================================");
+                            System.out.println("Please enter the date and time in the following format: yyyy-MM-ddThh:mm,");
+                            System.out.println("Where:");
+                            System.out.println("y = year");
+                            System.out.println("M = month");
+                            System.out.println("d = day");
+                            System.out.println("h = hour");
+                            System.out.println("m = minutes");
+                            System.out.println("=======================================================");
+                            System.out.println("!!!IF YOU DONT WANT THE SPECIFIC MINUTES, ENTER: hh:00");
+                            System.out.println("=======================================================");
+                            System.out.println("DISCLAIMER: The order might not arrive in the exact specified minute");
+                            System.out.println("=======================================================");
 
-                    LocalDateTime dateTime = LocalDateTime.parse(scanner.nextLine());
+                            dateTime = LocalDateTime.parse(scanner.nextLine());
+                            Validation.validateDeliveryDateTime(orderDate, dateTime);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
 
                     List<Integer> packageIds = new ArrayList<>();
                     System.out.println("How many Packages do you want to add to the order ?");
@@ -618,9 +692,9 @@ public class APP4 {
     }
 
     public static boolean testDatabaseConnection() {
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
-
         //try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
+
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola")) {
 
             return connection != null;
         } catch (SQLException e) {
@@ -742,10 +816,10 @@ public class APP4 {
 
     public static Object[] createDbServices() {
         try {
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
-
-
             //Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
+
+
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola");
             DbUtil dbUtil = new DbUtil(connection);
             // Creează și returnează instanțele de DbService
             RowMapper<Department> departmentsRowMapper = rs -> new Department(

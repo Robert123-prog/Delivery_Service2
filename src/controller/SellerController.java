@@ -9,6 +9,7 @@ import service.SellerService;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import helpers.Validation;
 
 public class SellerController {
     private final SellerService sellerService;
@@ -31,9 +32,9 @@ public class SellerController {
      * @param contact the contact information for the store
      */
     public void createStore(String name, String address, String contact) {
-        if (name.isEmpty() || address.isEmpty() || contact.isEmpty()){
-            throw new ValidationException("One or more required fields is empty");
-        }
+//        if (address.isEmpty()){
+//            throw new ValidationException("The address field is empty");
+//        }
 
         Integer id = sellerService.getNewStoreId();
         sellerService.registerStore(id, name, address, contact);
