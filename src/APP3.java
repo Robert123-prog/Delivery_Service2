@@ -566,9 +566,9 @@ public class APP3{
     //LocalDateTime
     private static IRepository<Order> createInMemoryOrderRepository() {
         IRepository<Order> orderIRepository = new InMemoryRepo<>();
-        orderIRepository.create(new Order(1, 1, Date.valueOf("2024-06-06"), LocalDateTime.of(2024, 6, 10, 12, 0)));//, 150.75, "Processing"));
-        orderIRepository.create(new Order(2, 2, Date.valueOf("2024-06-07"), LocalDateTime.of(2024, 6, 12, 14, 30)));//, 200.50, "Shipped"));
-        orderIRepository.create(new Order(3, 3, Date.valueOf("2024-06-08"), LocalDateTime.of(2024, 6, 15, 9, 0)));//, 100.25, "Delivered"));
+        orderIRepository.create(new Order(1, 1, LocalDateTime.of(2024, 6, 10, 12, 0)));//, 150.75, "Processing"));
+        orderIRepository.create(new Order(2, 2, LocalDateTime.of(2024, 6, 12, 14, 30)));//, 200.50, "Shipped"));
+        orderIRepository.create(new Order(3, 3, LocalDateTime.of(2024, 6, 15, 9, 0)));//, 100.25, "Delivered"));
         return orderIRepository;
     }
 
