@@ -141,7 +141,7 @@ public class Service {
         }
 
         String location = customer.getAddress();
-        Order order = new Order(orderID, customerId, orderDate, deliveryDateTime);
+        Order order = new Order(orderID, customerId, deliveryDateTime);
         order.setLocation(location);
 
         for (Integer packageId : packageIds) {

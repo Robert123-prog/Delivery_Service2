@@ -46,15 +46,14 @@ public class CustomerController {
      * Places an order for a customer.
      *
      * @param customerId       the ID of the customer placing the order
-     * @param orderDate        the date when the order was placed
      * @param deliveryDateTime when the order should be delivered
      * @param /cost            total cost of the order
      * @param /status          current status of the order
      */
-    public void makeAnOrder(Integer customerId, Date orderDate, LocalDateTime deliveryDateTime, List<Integer> packageIds) throws SQLException {
+    public void makeAnOrder(Integer customerId, LocalDateTime deliveryDateTime, List<Integer> packageIds) throws SQLException {
         Integer orderId = customerService.getNewOrderId();
         try {
-            customerService.placeOrder(customerId, orderId, orderDate, deliveryDateTime, packageIds);
+            customerService.placeOrder(customerId, orderId, deliveryDateTime, packageIds);
             System.out.println("Order with id " + orderId + " by customer with id " + customerId + " successfully");
         }catch (EntityNotFound e){
             System.out.println(e.getMessage());

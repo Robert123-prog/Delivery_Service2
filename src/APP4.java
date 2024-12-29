@@ -312,11 +312,6 @@ public class APP4 {
                     System.out.print("Enter customer ID: ");
                     Integer customerId = scanner.nextInt();
                     scanner.nextLine();
-
-                    System.out.print("Enter order date (yyyy-mm-dd): ");
-                    String orderDateString = scanner.nextLine();
-                    Date orderDate = Date.valueOf(orderDateString);
-
                     System.out.println("Delivery Date and Time: ");
                     System.out.println("=======================================================");
                     System.out.println("Please enter the date and time in the following format: yyyy-MM-ddThh:mm,");
@@ -349,7 +344,7 @@ public class APP4 {
 
                     }
 
-                    customerController.makeAnOrder(customerId, orderDate, dateTime, packageIds);
+                    customerController.makeAnOrder(customerId, dateTime, packageIds);
                     break;
                 case 4:
                     System.out.print("Enter Customer ID: ");
@@ -800,7 +795,6 @@ public class APP4 {
             RowMapper<Order> orderRowMapper = rs -> new Order(
                     rs.getInt("orderID"),
                     rs.getInt("customerID"),
-                    rs.getDate("orderDate"),
                     rs.getTimestamp("deliveryDateTime").toLocalDateTime()
                     //rs.getDouble("totalCost"),
                     //rs.getString("status"),
@@ -900,9 +894,9 @@ public class APP4 {
 
     private static IRepository<Order> createInMemoryOrderRepository() {
         IRepository<Order> orderIRepository = new InMemoryRepo<>();
-        orderIRepository.create(new Order(1, 1, Date.valueOf("2024-06-06"), LocalDateTime.of(2024, 6, 10, 12, 0))); // Exemplu
-        orderIRepository.create(new Order(2, 2, Date.valueOf("2024-06-07"), LocalDateTime.of(2024, 6, 12, 14, 30))); // Exemplu
-        orderIRepository.create(new Order(3, 3, Date.valueOf("2024-06-08"), LocalDateTime.of(2024, 6, 15, 9, 0))); // Exemplu
+        orderIRepository.create(new Order(1, 1, LocalDateTime.of(2024, 6, 10, 12, 0))); // Exemplu
+        orderIRepository.create(new Order(2, 2, LocalDateTime.of(2024, 6, 12, 14, 30))); // Exemplu
+        orderIRepository.create(new Order(3, 3, LocalDateTime.of(2024, 6, 15, 9, 0))); // Exemplu
         return orderIRepository;
     }
 
