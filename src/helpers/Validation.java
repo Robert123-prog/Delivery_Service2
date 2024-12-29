@@ -20,8 +20,9 @@ public class Validation {
      */
 
     public static boolean validateEmail(String email){
-        if (email == null || email.isEmpty() || !(email.chars().filter(ch -> ch == '@').count() == 1)) {
-            throw new ValidationException("Email must contain maximum one \"@\"");
+        //assumed 7 is the shortest email possible
+        if (email.length() < 7 || email == null || email.isEmpty() || !(email.chars().filter(ch -> ch == '@').count() == 1)) {
+            throw new ValidationException("Email must be at least 7 letters long and contain one \"@\"");
         }
         return true;
     }
@@ -81,18 +82,16 @@ public class Validation {
      * The delivery date has to be at a minimum of 1 day after the date of the order placement
      */
 
-    public static boolean validateDeliveryDateTime(Date orderDate, LocalDateTime deliveryDateTime){
+    public static boolean validateDeliveryDateTime(LocalDateTime orderDate, LocalDateTime deliveryDateTime){
         if (orderDate == null || deliveryDateTime == null) {
             throw new IllegalArgumentException("Order date and delivery date must not be null");
         }
 
-        // Convert `Date` to `LocalDate` for comparison
-        LocalDate orderLocalDate = orderDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
         // Check if the delivery date is at least 1 day after the order date
-        if (ChronoUnit.DAYS.between(orderLocalDate, deliveryDateTime.toLocalDate()) < 1) {
-            throw new ValidationException("The delivery date has to be at a minimum of 1 day after the date of the order placement");
+        if (ChronoUnit.DAYS.between(orderDate, deliveryDateTime) < 1) {
+            throw new ValidationException("The delivery date must be at least one day after the order date.");
         }
+
         return true; // Delivery date is valid
     }
 }
