@@ -10,10 +10,8 @@ import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+
 /**
  * Main application class for the delivery management system.
  * This class provides a console-based user interface for interacting with different
@@ -129,8 +127,18 @@ public class APP4 {
 
                     break;
                 case 5:
-                    System.out.print("Enter Department Name: ");
-                    String name = scanner.nextLine();
+                    String name;
+                    while (true){
+                        try {
+                            System.out.print("Enter Department Name: ");
+                            name = scanner.nextLine();
+                            Validation.validateName(name);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
+
                     System.out.print("Enter Department Task: ");
                     String task = scanner.nextLine();
                     userController.createDepartment(name, task);
@@ -323,45 +331,91 @@ public class APP4 {
                     customerController.viewAllCustomers();
                     break;
                 case 2:
-                    try{
-                    System.out.print("Enter Name: ");
-                    String name = scanner.nextLine();
+                    String name;
+                    while (true){
+                        try {
+                            System.out.print("Enter Name: ");
+                            name = scanner.nextLine();
+                            Validation.validateName(name);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
 
-                    System.out.print("Enter Address: ");
-                    String address = scanner.nextLine();
+                    String address;
+                    while (true){
+                        try {
+                            System.out.print("Enter Address: ");
+                            address = scanner.nextLine();
+                            Validation.validateAddress(address);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
 
-                    System.out.print("Enter Phone: ");
-                    String phone = scanner.nextLine();
+                    String phone;
+                    while (true){
+                        try {
+                            System.out.print("Enter Phone: ");
+                            phone = scanner.nextLine();
+                            Validation.validatePhoneNumber(phone);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
 
-                    System.out.print("Enter Email: ");
-                    String email = scanner.nextLine();
+                    String email;
+                    while (true){
+                        try {
+                            System.out.print("Enter Email: ");
+                            email = scanner.nextLine();
+                            Validation.validateEmail(email);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
 
                     customerController.createLoggedInCustomer(name, address, phone, email);
-                    } catch (ValidationException e) {
-                        e.setMessage("Invalid input: " + e.getMessage()); // Add context to the exception
-                        System.out.println(e.getMessage());
-                    }
                     break;
                 case 3:
+                    //TODO The delivery date has to be at a minimum of 1 day after the date of the order placement
+                    //folosesc LocalDateTime.now() ca sa calculez diferenta
+
                     System.out.print("Enter customer ID: ");
                     Integer customerId = scanner.nextInt();
                     scanner.nextLine();
-                    System.out.println("Delivery Date and Time: ");
-                    System.out.println("=======================================================");
-                    System.out.println("Please enter the date and time in the following format: yyyy-MM-ddThh:mm,");
-                    System.out.println("Where:");
-                    System.out.println("y = year");
-                    System.out.println("M = month");
-                    System.out.println("d = day");
-                    System.out.println("h = hour");
-                    System.out.println("m = minutes");
-                    System.out.println("=======================================================");
-                    System.out.println("!!!IF YOU DONT WANT THE SPECIFIC MINUTES, ENTER: hh:00");
-                    System.out.println("=======================================================");
-                    System.out.println("DISCLAIMER: The order might not arrive in the exact specified minute");
-                    System.out.println("=======================================================");
 
-                    LocalDateTime dateTime = LocalDateTime.parse(scanner.nextLine());
+                    LocalDateTime dateTime;
+                    while (true){
+                        try {
+                            System.out.println("Delivery Date and Time: ");
+                            System.out.println("=======================================================");
+                            System.out.println("Please enter the date and time in the following format: yyyy-MM-ddThh:mm,");
+                            System.out.println("Where:");
+                            System.out.println("y = year");
+                            System.out.println("M = month");
+                            System.out.println("d = day");
+                            System.out.println("h = hour");
+                            System.out.println("m = minutes");
+                            System.out.println("=======================================================");
+                            System.out.println("!!!IF YOU DONT WANT THE SPECIFIC MINUTES, ENTER: hh:00");
+                            System.out.println("=======================================================");
+                            System.out.println("DISCLAIMER: The order might not arrive in the exact specified minute");
+                            System.out.println("=======================================================");
+
+                            dateTime = LocalDateTime.parse(scanner.nextLine());
+                            Validation.validateDeliveryDateTime(LocalDateTime.now(), dateTime);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }catch (IllegalArgumentException e1){
+                            System.out.println(e1.getMessage());
+                        }
+                    }
 
                     List<Integer> packageIds = new ArrayList<>();
                     System.out.println("How many Packages do you want to add to the order ?");
@@ -377,7 +431,6 @@ public class APP4 {
                         packageIds.add(packageId);
 
                     }
-
                     customerController.makeAnOrder(customerId, dateTime, packageIds);
                     break;
                 case 4:
@@ -464,10 +517,31 @@ public class APP4 {
                     System.out.print("Enter Department ID: ");
                     int departmentId = scanner.nextInt();
                     scanner.nextLine(); // Consume newline
-                    System.out.print("Enter Name: ");
-                    String name = scanner.nextLine();
-                    System.out.print("Enter Phone: ");
-                    String phone = scanner.nextLine();
+
+                    String name;
+                    while (true){
+                        try {
+                            System.out.print("Enter Name: ");
+                            name = scanner.nextLine();
+                            Validation.validateName(name);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
+
+                    String phone;
+                    while (true){
+                        try {
+                            System.out.print("Enter Phone: ");
+                            phone = scanner.nextLine();
+                            Validation.validatePhoneNumber(phone);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
+
                     System.out.print("Enter License: ");
                     String license = scanner.nextLine();
 
@@ -549,17 +623,34 @@ public class APP4 {
                     deliveryPersonController.viewAllDeliveries();
                     break;
                 case 2:
-                    try {
-                        System.out.print("Enter Name: ");
-                        String name = scanner.nextLine();
-                        System.out.print("Enter Phone: ");
-                        String phone = scanner.nextLine();
-                        System.out.print("Enter License: ");
-                        String license = scanner.nextLine();
-                        deliveryPersonController.createDeliveryPerson(name, phone, license);
-                    }catch (ValidationException e){
-                        System.out.println(e.getMessage());
+                    String name;
+                    while (true){
+                        try {
+                            System.out.print("Enter Name: ");
+                            name = scanner.nextLine();
+                            Validation.validateName(name);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
                     }
+
+                    String phone;
+                    while (true){
+                        try {
+                            System.out.print("Enter Phone: ");
+                            phone = scanner.nextLine();
+                            Validation.validatePhoneNumber(phone);
+                            break;
+                        }catch (ValidationException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
+
+                    System.out.print("Enter License: ");
+                    String license = scanner.nextLine();
+
+                    deliveryPersonController.createDeliveryPerson(name, phone, license);
                     break;
                 case 3:
                     System.out.print("Enter Delivery Person ID: ");
@@ -647,9 +738,9 @@ public class APP4 {
     }
 
     public static boolean testDatabaseConnection() {
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
-
         //try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
+
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola")) {
 
             return connection != null;
         } catch (SQLException e) {
@@ -771,7 +862,7 @@ public class APP4 {
 
     public static Object[] createDbServices() {
         try {
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola");
 
 
             //Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
