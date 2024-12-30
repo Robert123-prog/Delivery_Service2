@@ -636,7 +636,7 @@ public class APP3{
                 Order::fromCsv
         );
         IRepository<Packages> packagesRepository = new InFileRepository<>(
-                "src/data/package.txt",
+                "src/data/packages.txt",
                 Packages::toCsv,
                 Packages::fromCsv
         );
@@ -646,17 +646,17 @@ public class APP3{
                 Employee::fromCsv
         );
         IRepository<Delivery> deliveryRepository = new InFileRepository<>(
-                "src/data/delivery.txt",
+                "src/data/deliveries.txt",
                 Delivery::toCsv,
                 Delivery::fromCsv
         );
         IRepository<Personal_Vehicle> personalVehicleRepository = new InFileRepository<>(
-                "src/data/personalVehicles.txt",
+                "src/data/personal_vehicles.txt",
                 Personal_Vehicle::toCsv,
                 Personal_Vehicle::fromCsv
         );
         IRepository<Delivery_Person> deliveryPersonRepository = new InFileRepository<>(
-                "src/data/deliveryPerson.txt",
+                "src/data/delivery_persons.txt",
                 Delivery_Person::toCsv,
                 Delivery_Person::fromCsv
         );

@@ -149,4 +149,25 @@ public class CustomerController {
             System.out.println(e.getMessage());
         }
     }
+
+    /**
+     *
+     * @param orderId
+     * @return Order
+     *
+     * To be used for Reschedule Delivery Date Functionality
+     */
+
+    public Order getSpecificOrder(Integer orderId){
+        List<Order> orders = customerService.getOrders();
+        Order order = null;
+
+        for (Order order1: orders){
+            if (order1.getId() == orderId){
+                order = order1;
+                break;
+            }
+        }
+        return order;
+    }
 }
