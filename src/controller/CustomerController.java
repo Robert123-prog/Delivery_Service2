@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class CustomerController {
     private final CustomerService customerService;
@@ -148,5 +149,26 @@ public class CustomerController {
         }catch (EntityNotFound e){
             System.out.println(e.getMessage());
         }
+    }
+
+    /**
+     *
+     * @param orderId
+     * @return Order
+     *
+     * To be used for Reschedule Delivery Date Functionality
+     */
+
+    public Order getSpecificOrder(Integer orderId){
+        List<Order> orders = customerService.getOrders();
+        Order order = null;
+
+        for (Order order1: orders){
+            if (Objects.equals(order1.getId(), orderId)){
+                order = order1;
+                break;
+            }
+        }
+        return order;
     }
 }

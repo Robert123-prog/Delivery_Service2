@@ -115,6 +115,7 @@ public class APP4 {
                     int employeeId = scanner.nextInt();
                     scanner.nextLine(); // Consume newline
                     userController.deleteEmployee(employeeId);
+                    userController.viewAllEmployees();
                     break;
                 case 4:
                     userController.viewAllDeliveryPersons();
@@ -124,6 +125,7 @@ public class APP4 {
                     scanner.nextLine();
 
                     userController.deleteDeliveryPerson(deliveryPersonId);
+                    userController.viewAllDeliveryPersons();
 
                     break;
                 case 5:
@@ -319,7 +321,7 @@ public class APP4 {
             System.out.println("4. Remove an Order");
             System.out.println("5. View Personal Orders");
             System.out.println("6. Calculate Order Cost");
-            System.out.println("7. Schedule Delivery Date");
+            System.out.println("7. Reschedule Delivery Date");
             System.out.println("8. View Orders sorted by price");
             System.out.println("9. Back to Main Menu");
             System.out.print("Select an option: ");
@@ -410,10 +412,8 @@ public class APP4 {
                             dateTime = LocalDateTime.parse(scanner.nextLine());
                             Validation.validateDeliveryDateTime(LocalDateTime.now(), dateTime);
                             break;
-                        }catch (ValidationException e){
+                        }catch (ValidationException | IllegalArgumentException e){
                             System.out.println(e.getMessage());
-                        }catch (IllegalArgumentException e1){
-                            System.out.println(e1.getMessage());
                         }
                     }
 
@@ -461,20 +461,36 @@ public class APP4 {
 
                     break;
                 case 7:
-                    try {
-                        System.out.print("Enter order ID: ");
-                        Integer orderIdForSchedule = Integer.parseInt(scanner.nextLine());
+                    System.out.print("Enter order ID: ");
+                    Integer orderIdForSchedule = Integer.parseInt(scanner.nextLine());
 
-                        System.out.print("Enter delivery date (yyyy-mm-dd): ");
-                        String deliveryDateStringForSchedule = scanner.nextLine();
-                        System.out.print("Enter delivery time (HH:mm): ");
-                        String deliveryTimeStringForSchedule = scanner.nextLine();
-                        LocalDateTime deliveryDateTimeForSchedule = LocalDateTime.parse(deliveryDateStringForSchedule + "T" + deliveryTimeStringForSchedule);
+                    Order order = customerController.getSpecificOrder(orderIdForSchedule);
+                    LocalDateTime deliveryDateTimeForSchedule;
+                    while (true) {
+                        try {
+                            System.out.println("Delivery Date and Time: ");
+                            System.out.println("=======================================================");
+                            System.out.println("Please enter the date and time in the following format: yyyy-MM-ddThh:mm,");
+                            System.out.println("Where:");
+                            System.out.println("y = year");
+                            System.out.println("M = month");
+                            System.out.println("d = day");
+                            System.out.println("h = hour");
+                            System.out.println("m = minutes");
+                            System.out.println("=======================================================");
+                            System.out.println("!!!IF YOU DONT WANT THE SPECIFIC MINUTES, ENTER: hh:00");
+                            System.out.println("=======================================================");
+                            System.out.println("DISCLAIMER: The order might not arrive in the exact specified minute");
+                            System.out.println("=======================================================");
 
-                        customerController.scheduleDeliveryDate(orderIdForSchedule, deliveryDateTimeForSchedule);
-                    } catch (Exception e) {
-                        System.out.println("Invalid input. Please try again.");
+                            deliveryDateTimeForSchedule = LocalDateTime.parse(scanner.nextLine());
+                            Validation.validateDeliveryDateTime(order.getOrderDate(), deliveryDateTimeForSchedule);
+                            break;
+                        }catch (ValidationException e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
+                    customerController.scheduleDeliveryDate(orderIdForSchedule, deliveryDateTimeForSchedule);
                     break;
                 case 8:
                     System.out.println("Enter Customer ID: ");
@@ -684,7 +700,14 @@ public class APP4 {
                     System.out.print("Enter Delivery Person ID: ");
                     Integer deliveryPersonID = scanner.nextInt();
                     scanner.nextLine(); // Consume newline
-                    deliveryPersonController.getDeliveriesForDeliveryPerson(deliveryPersonID);
+
+                    //deliveryPersonController.getDeliveriesForDeliveryPerson(deliveryPersonID);
+
+                    List<Delivery> deliveries = deliveryPersonController.getDeliveriesForDeliveryPerson(deliveryPersonID);
+
+                    for (Delivery delivery: deliveries){
+                        System.out.println(delivery);
+                    }
                     break;
                 case 6:
                     deliveryPersonController.viewAllDeliveryPersons();
