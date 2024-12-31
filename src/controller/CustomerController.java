@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class CustomerController {
     private final CustomerService customerService;
@@ -163,7 +164,7 @@ public class CustomerController {
         Order order = null;
 
         for (Order order1: orders){
-            if (order1.getId() == orderId){
+            if (Objects.equals(order1.getId(), orderId)){
                 order = order1;
                 break;
             }

@@ -321,7 +321,7 @@ public class APP4 {
             System.out.println("4. Remove an Order");
             System.out.println("5. View Personal Orders");
             System.out.println("6. Calculate Order Cost");
-            System.out.println("7. Schedule Delivery Date");
+            System.out.println("7. Reschedule Delivery Date");
             System.out.println("8. View Orders sorted by price");
             System.out.println("9. Back to Main Menu");
             System.out.print("Select an option: ");
@@ -461,16 +461,6 @@ public class APP4 {
 
                     break;
                 case 7:
-                    //TODO
-                    /*
-                    Delivery Date il dai deja cand creezi orderu, n ar trebui sa numim functionalitatea aste Reschedule Delivery Date?
-                     */
-
-                    /*
-                       Am nevoie de Orderul in sine (adica obiectu) la care se vrea setarea de alt delivery date
-                     */
-
-
                     System.out.print("Enter order ID: ");
                     Integer orderIdForSchedule = Integer.parseInt(scanner.nextLine());
 
