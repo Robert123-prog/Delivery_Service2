@@ -114,7 +114,6 @@ public class Department implements HasID {
                 "departmentID=" + departmentID +
                 ", name='" + name + '\'' +
                 ", task='" + task + '\'' +
-                ", employees=" + employees +
                 '}';
     }
 

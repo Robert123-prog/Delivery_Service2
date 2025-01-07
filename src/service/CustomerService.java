@@ -89,6 +89,8 @@ public class CustomerService {
 
         String location = customer.getAddress();
         Order order = new Order(orderID, customerId, deliveryDateTime);
+        orderIRepository.create(order);
+
 
         double totalCost = 0;
         for (Integer packageId : packageIds) {
@@ -96,6 +98,12 @@ public class CustomerService {
             if (packages != null) {
                 packages.setOrderID(orderID);  // Set the order ID in package
                 order.addPackage(packages);    // Add package to order
+
+                if (orderIRepository instanceof DBRepository<Order>) {
+
+                    String insertOrderPackageSQL = "INSERT INTO orderpackages VALUES(?, ?) ON CONFLICT (orderid, packageid) DO NOTHING";
+                    DbUtil.executeUpdate(insertOrderPackageSQL, orderID, packageId);
+                }
                 totalCost += packages.getCost();
                 packageIRepository.update(packages); // Update package with new order ID
             }
@@ -104,8 +112,7 @@ public class CustomerService {
         // Set order cost and save
         order.setTotalCost(totalCost);
         order.setLocation(location);
-        orderIRepository.create(order);
-
+        orderIRepository.update(order);
         // Update customer
         customer.addDOrder(order);
         customerIRepository.update(customer);

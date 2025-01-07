@@ -159,7 +159,6 @@ public class Customer implements HasID {
                 ", address='" + address + '\'' +
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
-                ", orders=" + orders +
                 '}';
     }
 

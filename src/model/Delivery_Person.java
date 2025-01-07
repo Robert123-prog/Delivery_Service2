@@ -101,10 +101,8 @@ public class Delivery_Person extends Person {
     public String toString() {
         return "Delivery_Person{" +
                 "deliveryPersonID=" + deliveryPersonID +
-                ", verified=" + verified +
                 ", phone='" + phone + '\'' +
                 ", name='" + name + '\'' +
-                ", personalVehicleId=" + personalVehicleId +
                 '}';
     }
 
@@ -114,16 +112,16 @@ public class Delivery_Person extends Person {
     }
 
     public String toCsv(){
-        StringBuilder serializedDeliveries = new StringBuilder();
-
-        for (Delivery delivery: deliveries){
-            serializedDeliveries.append(delivery.toCsv()).append(";");
-        }
+//        StringBuilder serializedDeliveries = new StringBuilder();
+//
+//        for (Delivery delivery: deliveries){
+//            serializedDeliveries.append(delivery.toCsv()).append(";");
+//        }
 
         return deliveryPersonID + "," +
                phone + "," +
-               name + "," +
-               serializedDeliveries.toString();
+               name;
+//               serializedDeliveries.toString();
     }
 
     public static Delivery_Person fromCsv(String csvLine){
@@ -135,20 +133,20 @@ public class Delivery_Person extends Person {
 
 //        boolean verified = Boolean.parseBoolean(parts[1]);
 //        String license = parts[2];
-        String deliveriesString = parts[3]; // Serialized deliveries
 //        Integer personalVehicleId = Integer.parseInt(parts[4]);
 
         // Create a new Delivery_Person object
         Delivery_Person deliveryPerson = new Delivery_Person(deliveryPersonID, deliveryPersonPhone, deliveryPersonName); // Phone and name left empty
 
+
         // Parse deliveries from the deliveriesString
-        if (!deliveriesString.isEmpty()) {
-            String[] deliveryParts = deliveriesString.split(";");
-            for (String deliveryString : deliveryParts) {
-                Delivery delivery = Delivery.fromCsv(deliveryString);
-                deliveryPerson.addDelivery(delivery);
-            }
-        }
+//        if (!deliveriesString.isEmpty()) {
+//            String[] deliveryParts = deliveriesString.split(";");
+//            for (String deliveryString : deliveryParts) {
+//                Delivery delivery = Delivery.fromCsv(deliveryString);
+//                deliveryPerson.addDelivery(delivery);
+//            }
+//        }
         return deliveryPerson;
     }
 }

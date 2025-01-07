@@ -139,6 +139,7 @@ public class DeliveryPersonService {
         deliveryPerson.setPersonalVehicleId(personalVehicleId);
         //deliveryPersonIRepository.update(deliveryPerson);
         personalVehicleIRepository.update(personalVehicle);
+        deliveryPersonIRepository.update(deliveryPerson);
     }
 
     public List<Personal_Vehicle> getPersonalVehicles(){
@@ -172,7 +173,7 @@ public class DeliveryPersonService {
             return true;
         } else {
             System.out.println("License for delivery person " + deliveryPersonId + " is not valid.");
-            return false;
+            throw new ValidationException("Invalid license for Delivery Person");
         }
     }
 
