@@ -69,35 +69,49 @@ public class DeliveryPersonService {
 
         return deliveriesWithToBeShipped;
     }
-
+    /**
+     * Assigns a delivery to a specific delivery person.
+     *
+     * @param deliveryPersonId ID of the delivery person to whom the delivery will be assigned.
+     * @param deliveryId      ID of the delivery to be assigned.
+     * @throws EntityNotFound if no delivery person or delivery is found with the specified IDs.
+     */
     public void pickDeliveryToPerson(Integer deliveryPersonId, Integer deliveryId) {
         List<Delivery_Person> deliveryPeople = deliveryPersonIRepository.readAll();
         boolean existsDeliveryPerson = false;
 
-        for (Delivery_Person deliveryPerson: deliveryPeople){
-            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)){
+        // Check if the delivery person exists
+        for (Delivery_Person deliveryPerson : deliveryPeople) {
+            if (Objects.equals(deliveryPerson.getId(), deliveryPersonId)) {
                 existsDeliveryPerson = true;
                 break;
             }
         }
 
-        if (!existsDeliveryPerson) throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
+        if (!existsDeliveryPerson) {
+            throw new EntityNotFound("No delivery person found with ID " + deliveryPersonId);
+        }
 
         List<Delivery> deliveries = deliveryIRepository.readAll();
-        boolean existsDelivery= false;
+        boolean existsDelivery = false;
 
-        for (Delivery delivery: deliveries){
-            if (Objects.equals(delivery.getId(), deliveryId)){
+        // Check if the delivery exists
+        for (Delivery delivery : deliveries) {
+            if (Objects.equals(delivery.getId(), deliveryId)) {
                 existsDelivery = true;
                 break;
             }
         }
 
-        if (!existsDelivery) throw new EntityNotFound("No delivery found with ID " + deliveryId);
+        if (!existsDelivery) {
+            throw new EntityNotFound("No delivery found with ID " + deliveryId);
+        }
 
+        // Retrieve the delivery and delivery person objects
         Delivery delivery = deliveryIRepository.get(deliveryId);
         Delivery_Person deliveryPerson = deliveryPersonIRepository.get(deliveryPersonId);
 
+        // Assign the delivery to the delivery person
         if (delivery != null && deliveryPerson != null) {
             deliveryPerson.addDelivery(delivery);
             deliveryPersonIRepository.update(deliveryPerson);

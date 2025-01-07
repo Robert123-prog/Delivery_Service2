@@ -324,6 +324,4 @@ public class Order implements HasID {
         return order;
     }
 }
-//TODO sa vad cum fac cu orderu asta, el merge da atunci nu mai stochez in fisier toate pachetele
-//TODO sa nu trebuieasca sa mai scriu orderDateul de la tastatura
-//TODO total costu acuma il calculeaza bine da probabil o sa trebuieasaca sa schimb si in DBRepo
+
