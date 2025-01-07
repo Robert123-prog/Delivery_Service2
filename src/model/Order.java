@@ -212,7 +212,6 @@ public class Order implements HasID {
                 ", deliveryDate=" + deliveryDateTime +
                 ", cost=" + totalCost +
                 ", status='" + status + '\'' +
-                ", packages=" + packages +
                 ", location='" + location + '\'' +
                 '}';
     }
@@ -294,10 +293,9 @@ public class Order implements HasID {
 
         Integer orderID = Integer.parseInt(parts[0]);
         Integer customerID = Integer.parseInt(parts[1]);
-        String orderDateStr = parts[2];
-        Date orderDate = java.sql.Date.valueOf(orderDateStr);
+//        String orderDateStr = parts[2];
+//        LocalDateTime orderDate = LocalDateTime.parse(parts[2], DATE_TIME_FORMATTER);
         LocalDateTime deliveryDateTime = LocalDateTime.parse(parts[3], DATE_TIME_FORMATTER);
-
         // Create the order object
         Order order = new Order(orderID, customerID, deliveryDateTime);
 

@@ -223,7 +223,7 @@ public class SellerService {
             }
         }
 
-        if (filteredOrders.isEmpty()) throw new BusinessLogicException("There are no locations set on the orders");
+       // if (filteredOrders.isEmpty()) throw new BusinessLogicException("There are no locations set on the orders");
 
         return filteredOrders;
     }

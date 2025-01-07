@@ -40,10 +40,16 @@ public class DeliveryPersonController {
         }
 
         Integer deliveryPersonId = deliveryPersonService.getNewDeliveryPersonId();
-        boolean verified = verifyDeliveryPerson(deliveryPersonId, license);
-        System.out.println(verified);
-        deliveryPersonService.enrollAsDriver(deliveryPersonId, name, phone, license);
-        System.out.println("Registered delivery person " + deliveryPersonId);
+        try {
+            boolean verified = verifyDeliveryPerson(deliveryPersonId, license);
+            System.out.println(verified);
+            deliveryPersonService.enrollAsDriver(deliveryPersonId, name, phone, license);
+            System.out.println("Registered delivery person " + deliveryPersonId);
+
+        }catch (ValidationException e){
+            System.out.println(e.getMessage());
+        }
+
     }
 
     /**

@@ -1042,9 +1042,30 @@ public class APP4 {
 
     private static IRepository<Order> createInMemoryOrderRepository() {
         IRepository<Order> orderIRepository = new InMemoryRepo<>();
-        orderIRepository.create(new Order(1, 1, LocalDateTime.of(2024, 6, 10, 12, 0))); // Exemplu
-        orderIRepository.create(new Order(2, 2, LocalDateTime.of(2024, 6, 12, 14, 30))); // Exemplu
-        orderIRepository.create(new Order(3, 3, LocalDateTime.of(2024, 6, 15, 9, 0))); // Exemplu
+        Order order1 = new Order(1, 1, LocalDateTime.of(2025, 1, 10, 12, 0));
+        Order order2 = new Order(2, 2, LocalDateTime.of(2025, 2, 12, 14, 30));
+        Order order3 = new Order(3, 3, LocalDateTime.of(2025, 3, 15, 9, 0));
+        Order order4 = new Order(4, 1, LocalDateTime.of(2025, 1, 20, 11, 0));
+        Order order5 = new Order(5, 2, LocalDateTime.of(2025, 10, 15, 10, 30));
+        Order order6 = new Order(6, 3, LocalDateTime.of(2025, 2, 15, 9, 0));
+        Order order7 = new Order(7, 3, LocalDateTime.of(2025, 5, 15, 9, 0));
+
+        order1.setLocation("Cluj");
+        order2.setLocation("Cluj");
+        order3.setLocation("Zalau");
+        order4.setLocation("Sibiu");
+        order5.setLocation("Zalau");
+        order6.setLocation("Sibiu");
+        order7.setLocation("Cluj");
+
+        orderIRepository.create(order1);
+        orderIRepository.create(order2);
+        orderIRepository.create(order3);
+        orderIRepository.create(order4);
+        orderIRepository.create(order5);
+        orderIRepository.create(order6);
+        orderIRepository.create(order7);
+
         return orderIRepository;
     }
 
