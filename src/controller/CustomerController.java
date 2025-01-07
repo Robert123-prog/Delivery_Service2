@@ -103,12 +103,7 @@ public class CustomerController {
      * @return total cost calculated from packages
      */
     public double calculateOrderCost(Integer orderId) {
-        try {
-            return customerService.calculateOrderCost(orderId);
-        }catch (EntityNotFound e){
-            System.out.println(e.getMessage());
-            return 0.0;
-        }
+        return customerService.calculateOrderCost(orderId);
     }
 
     /**

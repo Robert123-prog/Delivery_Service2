@@ -52,7 +52,7 @@ public class APP4 {
             System.out.println("6. Exit");
             System.out.print("Select an option: ");
             int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -94,7 +94,7 @@ public class APP4 {
             System.out.println("6. Back to Main Menu");
             System.out.print("Select an option: ");
             int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -105,7 +105,7 @@ public class APP4 {
                     userController.viewAllCustomers();
                     System.out.print("Enter Customer ID: ");
                     int customerId = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine();
                     userController.deleteCustomer(customerId);
                     userController.viewAllCustomers();
                     break;
@@ -113,7 +113,7 @@ public class APP4 {
                     userController.viewAllEmployees();
                     System.out.print("Enter Employee ID: ");
                     int employeeId = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine();
                     userController.deleteEmployee(employeeId);
                     break;
                 case 4:
@@ -168,8 +168,8 @@ public class APP4 {
             System.out.println("8. Remove Package");
             System.out.println("9. View all Packages");
             System.out.println("10. Create a Delivery");
-            System.out.println("11. Back to Main Menu");
-            System.out.println("12. View Packages from Order");
+            System.out.println("11. View Packages from Order");
+            System.out.println("12. Back to Main Menu");
             System.out.print("Select an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
@@ -220,7 +220,7 @@ public class APP4 {
                 case 3:
                     System.out.print("Enter Store ID: ");
                     int storeId = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine();
 
                     String depositAddress;
                     while (true) {
@@ -244,26 +244,26 @@ public class APP4 {
                 case 5:
                     System.out.print("Enter Store ID: ");
                     int deleteStoreId = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine();
                     sellerController.deleteStore(deleteStoreId);
                     break;
                 case 6:
                     System.out.print("Enter Store ID: ");
                     int storeIdForDeposit = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine();
                     System.out.print("Enter Deposit ID: ");
                     int depositId = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine();
                     sellerController.deleteDeposit(storeIdForDeposit, depositId);
                     break;
                 case 7:
                     try {
                         System.out.print("Enter Package Cost: ");
                         double cost = scanner.nextDouble();
-                        scanner.nextLine(); // Consume newline
+                        scanner.nextLine();
                         System.out.print("Enter Package Weight: ");
                         double weight = scanner.nextDouble();
-                        scanner.nextLine(); // Consume newline
+                        scanner.nextLine();
                         System.out.print("Enter Package Dimensions: ");
                         String dimensions = scanner.nextLine();
                         sellerController.createPackage(cost, weight, dimensions);
@@ -275,9 +275,7 @@ public class APP4 {
                     sellerController.viewAllPackages();
                     System.out.print("Enter Package ID: ");
                     Integer packageId = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
-                    // Assuming there's a method to remove a package
-                    //TODO crapa in InFileRepository, nu il gaseste sa l stearga
+                    scanner.nextLine();
                     //
                     sellerController.removePackage(packageId);
                     break;
@@ -292,14 +290,15 @@ public class APP4 {
                     }catch (ValidationException e){
                         System.out.println(e.getMessage());
                     }
+
                 case 11:
-                    return;
-                case 12:
                     System.out.print("Enter Order ID: ");
                     int orderId = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    scanner.nextLine();
                     sellerController.viewPackagesFromOrder(orderId);
                     break;
+                case 12:
+                    return;
                 default:
                     System.out.println("Invalid option. Please try again.");
             }
@@ -318,7 +317,7 @@ public class APP4 {
             System.out.println("3. Make an Order");
             System.out.println("4. Remove an Order");
             System.out.println("5. View Personal Orders");
-            System.out.println("6. Calculate Order Cost");
+            System.out.println("6. View Order Cost");
             System.out.println("7. Schedule Delivery Date");
             System.out.println("8. View Orders sorted by price");
             System.out.println("9. Back to Main Menu");
@@ -382,8 +381,6 @@ public class APP4 {
                     customerController.createLoggedInCustomer(name, address, phone, email);
                     break;
                 case 3:
-                    //TODO The delivery date has to be at a minimum of 1 day after the date of the order placement
-                    //folosesc LocalDateTime.now() ca sa calculez diferenta
 
                     System.out.print("Enter customer ID: ");
                     Integer customerId = scanner.nextInt();
@@ -544,13 +541,6 @@ public class APP4 {
 
                     System.out.print("Enter License: ");
                     String license = scanner.nextLine();
-
-                    //TODO
-                    /*
-                    org.postgresql.util.PSQLException: ERROR: column "departmentid" does not exist
-                    Hint: Perhaps you meant to reference the column "departments.departmentID".
-                       Position: 33
-                     */
                     employeeController.createEmployee(departmentId, name, phone, license);
                     break;
                 case 3:
@@ -738,9 +728,9 @@ public class APP4 {
     }
 
     public static boolean testDatabaseConnection() {
-        //try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234")) {
 
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola")) {
+        //try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola")) {
 
             return connection != null;
         } catch (SQLException e) {
@@ -862,7 +852,7 @@ public class APP4 {
 
     public static Object[] createDbServices() {
         try {
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Delivery_Service", "postgres", "parola");
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
 
 
             //Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "1234");
